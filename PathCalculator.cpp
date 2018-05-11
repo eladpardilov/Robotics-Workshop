@@ -5,18 +5,14 @@
 #include <fstream>
 #include <string>
 
-
 using namespace std;
 
 float** global_map;
 cv::Mat global_mat;
 double mat_min, mat_max;
 
-
-PathCalculator::PathCalculator(int rows, int cols, cv::Mat mat, int* coordinates, int radius, int velocity)
+PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int radius, int velocity)
 {
-	this->rows = rows;
-	this->cols = cols;
 	this->mat = mat;
 	global_mat = mat;
 	cv::minMaxLoc(global_mat, &mat_min, &mat_max);
@@ -48,6 +44,8 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	dist = x*x + y*y + z*z;
 	dist = sqrt(dist);
 	return (dist < MAX_DISTANCE_FOR_STEP);
+		//check line-free
+		//return true/false;
 }
 
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const
@@ -229,14 +227,38 @@ void PathCalculator::Show()
 	fscanf(readFile, "Geometric path with %d states\n", &numOfPoints);
    
     //creating a Mat to display
-	cv::Mat image;
+	//cv::Mat image;
    
-    for(int i=0; i<size.height; i++)
+  /* try{
+		image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR);
+	}catch(exception& e){
+		cout << e.what() << endl;
+		return;}
+	
+	if(! image.data ) 
+	{
+      std::cout <<  "Could not open or find the image" << std::endl ;
+      return;
+    }*/
+    
+    cout << "rows,cols: " << rows << " " << cols << endl;
+    
+   /* for(int i=0; i<rows; i++)
     {
-		for(int j=0; j<size.
+		for(int j=0; j<cols; j++)
+		{			
+			global_mat.at<int>(i,j) = (int)((255.0*(global_mat.at<float>(i,j) - mat_min)) / (float)(mat_max - mat_min));
+			
+			//if(global_mat.at<float>(i,j) > 255)
+			//	cout << "hi " << global_mat.at<int>(i,j) << endl;
+			
+		}
 		
-	}
+	}*/
  
+	cout << "min,max: " << mat_min << " " << mat_max << endl;
+	cout << "type: " << global_mat.type() << endl;
+	
 	cv::namedWindow( "Our Plane Path", cv::WINDOW_AUTOSIZE );
 	
 	//for(auto state : states_)
@@ -245,7 +267,7 @@ void PathCalculator::Show()
 	
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x1, &y1, &z1);
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
-	cv::line(image, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
+	cv::line(global_mat, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 	//circle(image, Point(x1,y1), 3, Scalar(255,0,0), FILLED);
 	for(int i=3; i<=numOfPoints; i++)
 	{
@@ -256,14 +278,26 @@ void PathCalculator::Show()
 			
 		fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
 			
-		cv::line(image, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
+		cv::line(global_mat, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
 	
 	
 	fclose(readFile);
 	
-	cv::imshow( "Our Plane Path", image );
+	cv::Mat img;
+	cv::Mat dist;
+	
+	//cvtColor(global_mat, global_mat, CV_BGR2RGB);
+	
+	//global_mat.convertTo(dist, CV_8UC1);
+	cv::distanceTransform(global_mat, dist, cv::DIST_L2, 3);
+	cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX, CV_8UC1);
+	
+	global_mat.convertTo(img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
+	//global_mat.convertTo(img, CV_8U, 255.0f/(3101.0f - 914.0f), (-914.0f * 255.0f)/(3101.0f - 914.0f));
+	cv::imshow( "Our Plane Path", dist);
+	
 	cv::waitKey(0);
 	
 }

@@ -31,8 +31,6 @@ extern cv::Mat global_mat;
 class PathCalculator
 {
 private:
-	int rows;
-	int cols;
 	cv::Mat mat;
 	int* coordinates = NULL;
 	int radius;
@@ -51,7 +49,7 @@ private:
 	static bool isStateValid(const ob::State *state);
 
 public:
-	PathCalculator (int rows, int cols, cv::Mat mat, int* coordinates, int radius, int velocity);
+	PathCalculator (cv::Mat mat, int* coordinates, int radius, int velocity);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void Show();

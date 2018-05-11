@@ -1,22 +1,27 @@
-/*
- * main.cpp
- *
- *  Created on: May 9, 2018
- *     Author: Dana
- */
 /*********** Includes ***********/
 #include <iostream>
 #include <string>
 #include "PathCalculator.h"
 #include "Defs.h"
 #include <fstream>
+/*
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+*/
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs/imgcodecs_c.h>
+#include <opencv2/imgproc.hpp>
 
 //using namespace cv;
 using namespace std;
 
-cv::Mat global_mat;
+//cv::Mat global_mat;
 
 int main(int argc, char **argv)
 {
@@ -39,41 +44,44 @@ int main(int argc, char **argv)
         return RETURN_CODE_ERROR;
     }
     */
+	cout << "read" << endl;
+	
+	cv::Mat dist;
+	
+	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_UNCHANGED);
+	cout << "type: " << src_image.type() << endl;
+	
+	
+	cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
+	
+	dist = src_image(region_of_interest);
+	//src_image.convertTo(dist, CV_8UC1);
+	//cout << "type: " << dist.type() << endl;
+	//cv::distanceTransform(dist, dist, cv::DIST_L2, 3);
+	//cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX, CV_8UC1);
+	
+	//src_image.convertTo(img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
+	src_image.convertTo(dist, CV_8U, 255.0f/(3101.0f - 914.0f), (-914.0f * 255.0f)/(3101.0f - 914.0f));
+	cv::imshow( "Our Plane Path", dist);
 
-	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR);
+	cv::waitKey(0);
+	
+	exit(0);
+	
+	
+	cout << "done reading " << endl;
+	
+	//cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
 
-	cv::Rect region_of_interest = cv::Rect(0, 0, 360, 360);
+	cout << "44" << endl;
 
 	image = src_image(region_of_interest);
+	
+	cout << "48" << endl;
 
-    map = new float*[MAP_SIZE];
-    for(int i = 0; i < MAP_SIZE; i++)
-        map[i] = new float[MAP_SIZE];
 
     printf("Map size is %d X %d, map overview: (point every 5 coordinates):\n", MAP_SIZE, MAP_SIZE);
 
-    for(int i=0; i < MAP_SIZE; i++){
-        for(int j=0; j < MAP_SIZE; j++){
-        	if (25 <= i && i < 75 && 25 <= j && j < 75)
-        		map[i][j] = 20;
-        	else
-                	if (15 <= i && i < 85 && 15 <= j && j < 85)
-                		map[i][j] = 15;
-                	else
-                        	if (10 <= i && i < 90 && 10 <= j && j < 90)
-                        		map[i][j] = 10;
-                        	else
-                        		map[i][j] = 0;
-        }
-    }
-/*
-    for(int i=0; i < MAP_SIZE; i+=5){
-        for(int j=0; j < MAP_SIZE; j+=5){
-        	printf("%4.1f ", map[i][j]);
-        }
-        printf("\n");
-    }
-*/
     end_coordinates = new int[2];
 
     // Parse Arguments
@@ -91,7 +99,7 @@ int main(int argc, char **argv)
     velocity = 3;
 
     // Create object for the PathCalculator
-    PathCalculator path(rows, cols, image, end_coordinates, radius, velocity);
+    PathCalculator path(image, end_coordinates, radius, velocity);
 
     path.PlanRoute();
     
