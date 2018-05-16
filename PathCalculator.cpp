@@ -190,7 +190,7 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(2.0);
+    ob::PlannerStatus solved = planner->ob::Planner::solve(1.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)
@@ -229,12 +229,12 @@ void PathCalculator::Show()
     //creating a Mat to display
 	//cv::Mat image;
    
-  /* try{
-		image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR);
-	}catch(exception& e){
-		cout << e.what() << endl;
-		return;}
-	
+/*
+   try{
+	image = global_mat;
+}catch(exception& e){
+	cout << e.what() << endl;
+	return;}
 	if(! image.data ) 
 	{
       std::cout <<  "Could not open or find the image" << std::endl ;
@@ -285,7 +285,7 @@ void PathCalculator::Show()
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
 	
-	
+
 	fclose(readFile);
 	
 	cv::imshow( "Our Plane Path", normalized_img);
