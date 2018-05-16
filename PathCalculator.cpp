@@ -1,11 +1,3 @@
-
-/*
- * PathCalculator.cpp
- *
- *  Created on: May 9, 2018
- *      Author: Dana
- */
-
 #include <cstdio>
 #include "PathCalculator.h"
 #include "Defs.h"
@@ -31,6 +23,10 @@ PathCalculator::PathCalculator(int rows, int cols, cv::Mat mat, int* coordinates
 	this->coordinates = coordinates;
 	this->radius = radius;
 	this->velocity = velocity;
+	cv::Size size = global_mat.size();
+	rows = size.height;
+	cols = size.width;
+	
 }
 
 PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationPtr &si) : ob::MotionValidator(si) {
@@ -235,18 +231,16 @@ void PathCalculator::Show()
     //creating a Mat to display
 	cv::Mat image;
    
-   try{
-	image = global_mat;
-}catch(exception& e){
-	cout << e.what() << endl;
-	return;}
-	if(! image.data ) 
-	{
-      std::cout <<  "Could not open or find the image" << std::endl ;
-      return;
-    }
+    for(int i=0; i<size.height; i++)
+    {
+		for(int j=0; j<size.
+		
+	}
  
 	cv::namedWindow( "Our Plane Path", cv::WINDOW_AUTOSIZE );
+	
+	//for(auto state : states_)
+	//	cout << state->components[0] << endl;
 	
 	
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x1, &y1, &z1);

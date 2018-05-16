@@ -55,6 +55,9 @@ public:
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void Show();
+	
+	int rows;
+	int cols;
 
 };
 

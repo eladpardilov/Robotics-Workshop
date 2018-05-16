@@ -16,6 +16,8 @@
 //using namespace cv;
 using namespace std;
 
+cv::Mat global_mat;
+
 int main(int argc, char **argv)
 {
 //	TIFF* tif;
