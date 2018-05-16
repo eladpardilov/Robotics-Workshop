@@ -66,14 +66,14 @@ int main(int argc, char **argv)
                         		map[i][j] = 0;
         }
     }
-
+/*
     for(int i=0; i < MAP_SIZE; i+=5){
         for(int j=0; j < MAP_SIZE; j+=5){
         	printf("%4.1f ", map[i][j]);
         }
         printf("\n");
     }
-
+*/
     end_coordinates = new int[2];
 
     // Parse Arguments

@@ -18,6 +18,8 @@ using namespace std;
 
 float** global_map;
 cv::Mat global_mat;
+double mat_min, mat_max;
+
 
 PathCalculator::PathCalculator(int rows, int cols, cv::Mat mat, int* coordinates, int radius, int velocity)
 {
@@ -25,6 +27,7 @@ PathCalculator::PathCalculator(int rows, int cols, cv::Mat mat, int* coordinates
 	this->cols = cols;
 	this->mat = mat;
 	global_mat = mat;
+	cv::minMaxLoc(global_mat, &mat_min, &mat_max);
 	this->coordinates = coordinates;
 	this->radius = radius;
 	this->velocity = velocity;
@@ -91,17 +94,20 @@ public:
         double y = rng_.uniformReal(0,MAP_SIZE);
         int x_int = (int)x;
         int y_int = (int)y;
-        if (global_mat.at<int>(x_int, y_int) > MAX_HEIGHT)
+	//printf("point at map: (%.2f,%.2f,%.2f), ", x,y,global_mat.at<float>(x_int, y_int));
+        if (global_mat.at<float>(x_int, y_int) > mat_max)
         	return false;
-        double z = rng_.uniformReal((double)global_mat.at<int>(x_int, y_int), MAX_HEIGHT);
+        double z = rng_.uniformReal(global_mat.at<float>(x_int, y_int), mat_max);
 
         val[0] = x;
         val[1] = y;
         val[2] = z;
         if (si_->isValid(state)) {
+//        	printf("point taken: (%.2f,%.2f,%.2f)", x,y,z);
+//        	printf(" valid state\n");
         	return true;
         }
-
+        //printf("\n");
 
         return false;
     }
@@ -128,8 +134,9 @@ ob::ValidStateSamplerPtr PathCalculator::allocMyValidStateSampler(const ob::Spac
 bool PathCalculator::isStateValid(const ob::State *state)
 {
     const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
-    if ((pos[0]<MAP_SIZE && pos[0]>0) && (pos[1]<MAP_SIZE && pos[1]>0))
-	    return pos[2] < 20;
+    if ((pos[0]<MAP_SIZE && pos[0]>0) && (pos[1]<MAP_SIZE && pos[1]>0)) {
+	    return pos[2] < mat_max;
+    }
     else
 	    return false;
 }
@@ -144,7 +151,8 @@ void PathCalculator::PlanRoute()
     ob::RealVectorBounds bounds(3);
     bounds.setLow(0);
     bounds.setHigh(MAP_SIZE);
-
+    bounds.setLow(2, mat_min);
+    bounds.setHigh(2, mat_max);
     space->setBounds(bounds);
 
     // construct an instance of  space information from this state space
@@ -160,14 +168,16 @@ void PathCalculator::PlanRoute()
     ob::ScopedState<ob::SE3StateSpace> start(space);
     start[0] = 1;
     start[1] = 1;
-    start[2] = 1;
+    start[2] = global_mat.at<float>(1, 1);
+    printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
     // start->rotation().setIdentity();
 
     // create the goal state at [99 99 1]
     ob::ScopedState<ob::SE3StateSpace> goal(space);
     goal[0] = (double)coordinates[0];
     goal[1] = (double)coordinates[1];
-    goal[2] = 1;
+    goal[2] = global_mat.at<float>(coordinates[0], coordinates[1]);
+    printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
     // goal->rotation().setIdentity();
 
     auto pdef(std::make_shared<ob::ProblemDefinition>(si));
@@ -186,7 +196,7 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(2.0);
+    ob::PlannerStatus solved = planner->ob::Planner::solve(300.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)
@@ -226,7 +236,7 @@ void PathCalculator::Show()
 	cv::Mat image;
    
    try{
-	image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR);
+	image = global_mat;
 }catch(exception& e){
 	cout << e.what() << endl;
 	return;}
