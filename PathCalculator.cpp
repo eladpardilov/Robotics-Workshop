@@ -13,6 +13,7 @@
 #include <fstream>
 #include <string>
 
+
 using namespace std;
 
 float** global_map;
@@ -85,8 +86,8 @@ public:
     bool sample(ob::State *state) override
     {
         double* val = static_cast<ob::RealVectorStateSpace::StateType*>(state)->values;
-        double x = rng_.uniformReal(0,99.99);
-        double y = rng_.uniformReal(0,99.99);
+        double x = rng_.uniformReal(0,MAP_SIZE);
+        double y = rng_.uniformReal(0,MAP_SIZE);
         int x_int = (int)x;
         int y_int = (int)y;
         if (global_map[x_int][y_int] > MAX_HEIGHT)
@@ -172,7 +173,7 @@ void PathCalculator::PlanRoute()
     // set the start and goal states
     pdef->setStartAndGoalStates(start, goal);
     // create a planner for the defined space
-    auto planner(std::make_shared<og::PRM>(si));
+    auto planner(std::make_shared<og::PRM>(si, true));
     // set the problem we are trying to solve for the planner
     planner->setProblemDefinition(pdef);
     // perform setup steps for the planner
@@ -183,8 +184,8 @@ void PathCalculator::PlanRoute()
     // print the problem settings
     // pdef->print(std::cout);
 
-    // attempt to solve the problem within one second of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(5.0);
+    // attempt to solve the problem within ten seconds of planning time
+    ob::PlannerStatus solved = planner->ob::Planner::solve(10.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)
