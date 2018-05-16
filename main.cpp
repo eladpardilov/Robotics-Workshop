@@ -13,8 +13,6 @@
 #include <iostream>
 #include <string>
 
-//#include "opencv-3.1.0\opencv\sources\3rdparty\libtiff\tiff.h"
-
 //using namespace cv;
 using namespace std;
 
