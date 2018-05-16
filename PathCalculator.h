@@ -25,7 +25,7 @@
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
-extern float** global_map;
+extern cv::Mat global_mat;
 
 
 class PathCalculator
@@ -33,7 +33,7 @@ class PathCalculator
 private:
 	int rows;
 	int cols;
-	float** map;
+	cv::Mat mat;
 	int* coordinates = NULL;
 	int radius;
 	int velocity;
@@ -51,7 +51,7 @@ private:
 	static bool isStateValid(const ob::State *state);
 
 public:
-	PathCalculator (int rows, int cols, float** map, int* coordinates, int radius, int velocity);
+	PathCalculator (int rows, int cols, cv::Mat mat, int* coordinates, int radius, int velocity);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void Show();

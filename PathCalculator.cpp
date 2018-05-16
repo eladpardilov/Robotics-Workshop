@@ -17,13 +17,14 @@
 using namespace std;
 
 float** global_map;
+cv::Mat global_mat;
 
-PathCalculator::PathCalculator(int rows, int cols, float** map, int* coordinates, int radius, int velocity)
+PathCalculator::PathCalculator(int rows, int cols, cv::Mat mat, int* coordinates, int radius, int velocity)
 {
 	this->rows = rows;
 	this->cols = cols;
-	this->map = map;
-	global_map = map;
+	this->mat = mat;
+	global_mat = mat;
 	this->coordinates = coordinates;
 	this->radius = radius;
 	this->velocity = velocity;
@@ -32,7 +33,6 @@ PathCalculator::PathCalculator(int rows, int cols, float** map, int* coordinates
 PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationPtr &si) : ob::MotionValidator(si) {
 
 }
-
 
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2) const
 {
@@ -50,6 +50,7 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	dist = sqrt(dist);
 	return (dist < MAX_DISTANCE_FOR_STEP);
 }
+
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const
 {
 	const ob::RealVectorStateSpace::StateType& pos1 =
@@ -90,9 +91,9 @@ public:
         double y = rng_.uniformReal(0,MAP_SIZE);
         int x_int = (int)x;
         int y_int = (int)y;
-        if (global_map[x_int][y_int] > MAX_HEIGHT)
+        if (global_mat.at<int>(x_int, y_int) > MAX_HEIGHT)
         	return false;
-        double z = rng_.uniformReal((double)global_map[x_int][y_int],MAX_HEIGHT);
+        double z = rng_.uniformReal((double)global_mat.at<int>(x_int, y_int), MAX_HEIGHT);
 
         val[0] = x;
         val[1] = y;
@@ -164,8 +165,8 @@ void PathCalculator::PlanRoute()
 
     // create the goal state at [99 99 1]
     ob::ScopedState<ob::SE3StateSpace> goal(space);
-    goal[0] = 99;
-    goal[1] = 99;
+    goal[0] = (double)coordinates[0];
+    goal[1] = (double)coordinates[1];
     goal[2] = 1;
     // goal->rotation().setIdentity();
 
@@ -185,7 +186,7 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(10.0);
+    ob::PlannerStatus solved = planner->ob::Planner::solve(2.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)

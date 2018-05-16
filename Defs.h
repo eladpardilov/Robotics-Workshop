@@ -12,10 +12,10 @@
 #define RETURN_CODE_SUCCESS (0)
 #define MAIN_NUM_OF_ARGS (4)
 #define MAX_HEIGHT	(50)
-#define	MAP_SIZE	(100)
+#define	MAP_SIZE	(360)
 #define MAX_DISTANCE_FOR_STEP (10)
 #define DOTS_FILE_NAME "dots.txt"
-//#define MAP_TIF "N46E010.tif"
-#define MAP_TIF "sample.tif"
+#define MAP_TIF "N46E010.tif"
+//#define MAP_TIF "sample.tif"
 
 #endif /* DEFS_H_ */

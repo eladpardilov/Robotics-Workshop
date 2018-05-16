@@ -24,9 +24,10 @@ int main(int argc, char **argv)
 	float** map;
     int rows;
     int cols;
-    int * coordinates;
+    int * end_coordinates;
     int radius;
     int velocity;
+    cv::Mat src_image, image;
 
     printf("Ignoring input params...\n");
     // Check the number of parameters
@@ -38,6 +39,13 @@ int main(int argc, char **argv)
         return RETURN_CODE_ERROR;
     }
     */
+
+	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_ANYDEPTH | CV_LOAD_IMAGE_COLOR);
+
+	cv::Rect region_of_interest = cv::Rect(0, 0, 360, 360);
+
+	image = src_image(region_of_interest);
+
     map = new float*[MAP_SIZE];
     for(int i = 0; i < MAP_SIZE; i++)
         map[i] = new float[MAP_SIZE];
@@ -66,7 +74,7 @@ int main(int argc, char **argv)
         printf("\n");
     }
 
-    coordinates = new int[2];
+    end_coordinates = new int[2];
 
     // Parse Arguments
     // Open the TIFF file using libtiff
@@ -77,13 +85,13 @@ int main(int argc, char **argv)
     radius = atoi(argv[3]);
     velocity = atoi(argv[4]);
     */
-    coordinates[0] = 3;
-    coordinates[1] = 3;
+    end_coordinates[0] = MAP_SIZE / 2;
+    end_coordinates[1] = MAP_SIZE / 2;
     radius = 3;
     velocity = 3;
 
     // Create object for the PathCalculator
-    PathCalculator path(rows, cols, map, coordinates, radius, velocity);
+    PathCalculator path(rows, cols, image, end_coordinates, radius, velocity);
 
     path.PlanRoute();
     
