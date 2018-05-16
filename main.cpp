@@ -44,42 +44,15 @@ int main(int argc, char **argv)
         return RETURN_CODE_ERROR;
     }
     */
-	cout << "read" << endl;
-	
-	cv::Mat dist;
 	
 	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_UNCHANGED);
-	cout << "type: " << src_image.type() << endl;
-	
-	
-	cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
-	
-	dist = src_image(region_of_interest);
-	//src_image.convertTo(dist, CV_8UC1);
-	//cout << "type: " << dist.type() << endl;
-	//cv::distanceTransform(dist, dist, cv::DIST_L2, 3);
-	//cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX, CV_8UC1);
-	
-	//src_image.convertTo(img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
-	src_image.convertTo(dist, CV_8U, 255.0f/(3101.0f - 914.0f), (-914.0f * 255.0f)/(3101.0f - 914.0f));
-	cv::imshow( "Our Plane Path", dist);
-
-	cv::waitKey(0);
-	
-	exit(0);
-	
 	
 	cout << "done reading " << endl;
 	
-	//cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
-
-	cout << "44" << endl;
+	cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
 
 	image = src_image(region_of_interest);
 	
-	cout << "48" << endl;
-
-
     printf("Map size is %d X %d, map overview: (point every 5 coordinates):\n", MAP_SIZE, MAP_SIZE);
 
     end_coordinates = new int[2];
@@ -106,10 +79,10 @@ int main(int argc, char **argv)
     path.Show();
     
 
-    for(int i = 0; i < MAP_SIZE; ++i) {
-        delete [] map[i];
-    }
-    delete [] map;
+   // for(int i = 0; i < MAP_SIZE; ++i) {
+   //     delete [] map[i];
+   // }
+    //delete [] map;
 
 }
 

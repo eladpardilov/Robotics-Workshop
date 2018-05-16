@@ -190,7 +190,7 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(300.0);
+    ob::PlannerStatus solved = planner->ob::Planner::solve(2.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)
@@ -264,10 +264,13 @@ void PathCalculator::Show()
 	//for(auto state : states_)
 	//	cout << state->components[0] << endl;
 	
+	cv::Mat normalized_img;
+	
+	global_mat.convertTo(normalized_img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
 	
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x1, &y1, &z1);
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
-	cv::line(global_mat, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
+	cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 	//circle(image, Point(x1,y1), 3, Scalar(255,0,0), FILLED);
 	for(int i=3; i<=numOfPoints; i++)
 	{
@@ -278,25 +281,14 @@ void PathCalculator::Show()
 			
 		fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
 			
-		cv::line(global_mat, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
+		cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
 	
 	
 	fclose(readFile);
 	
-	cv::Mat img;
-	cv::Mat dist;
-	
-	//cvtColor(global_mat, global_mat, CV_BGR2RGB);
-	
-	//global_mat.convertTo(dist, CV_8UC1);
-	cv::distanceTransform(global_mat, dist, cv::DIST_L2, 3);
-	cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX, CV_8UC1);
-	
-	global_mat.convertTo(img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
-	//global_mat.convertTo(img, CV_8U, 255.0f/(3101.0f - 914.0f), (-914.0f * 255.0f)/(3101.0f - 914.0f));
-	cv::imshow( "Our Plane Path", dist);
+	cv::imshow( "Our Plane Path", normalized_img);
 	
 	cv::waitKey(0);
 	
