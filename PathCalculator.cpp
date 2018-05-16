@@ -168,8 +168,7 @@ void PathCalculator::PlanRoute()
 
     // create the goal state at [99 99 1]
     ob::ScopedState<ob::SE3StateSpace> goal(space);
-//    goal[0] = (double)coordinates[0];
-//    goal[1] = (double)coordinates[1];
+
     goal[0] = 300;
     goal[1] = 255;
     goal[2] = global_mat.at<float>(goal[1],goal[0]);
@@ -192,7 +191,9 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
+
     ob::PlannerStatus solved = planner->ob::Planner::solve(300.0);
+
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)

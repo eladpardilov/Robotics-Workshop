@@ -60,7 +60,6 @@ int main(int argc, char **argv)
         }
         printf("\n");
     }
-
     end_coordinates = new int[2];
 
     // Parse Arguments
