@@ -43,6 +43,8 @@ private:
 		myMotionValidator(const ob::SpaceInformationPtr &si);
 		bool checkMotion(const ob::State *s1, const ob::State *s2) const;
 		bool checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const;
+		bool IsLineValid(int** line, int len) const;
+		bool CheckLineBetweenPoints(int* pos1, int* pos2) const;
 		
 	};
 	static ob::ValidStateSamplerPtr allocMyValidStateSampler(const ob::SpaceInformation *si);

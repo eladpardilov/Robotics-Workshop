@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     int * end_coordinates;
     int radius;
     int velocity;
-    cv::Mat src_image, image;
+    cv::Mat src_image, image, image2;
 
     printf("Ignoring input params...\n");
     // Check the number of parameters
@@ -49,14 +49,16 @@ int main(int argc, char **argv)
 	
 	cout << "done reading " << endl;
 	
-	cv::Rect region_of_interest = cv::Rect(0, 0, MAP_SIZE, MAP_SIZE);
+	cv::Rect region_of_interest = cv::Rect(1000, 1000, MAP_SIZE, MAP_SIZE);
 
-	image = src_image(region_of_interest);
+	image2 = src_image(region_of_interest);
+
+    image = image2 / Z_AXIS_DIV_FACTOR;
 	
-    printf("Map size is %d X %d, map overview: (point every 5 coordinates):\n", MAP_SIZE, MAP_SIZE);
-    for(int i=0; i < MAP_SIZE; i+=10){
-        for(int j=0; j < MAP_SIZE; j+=10){
-        	printf("%4.0f ", image.at<float>(i, j));
+    printf("Map size is %d X %d, map overview: (point every 10 coordinates):\n", MAP_SIZE, MAP_SIZE);
+    for(int y=0; y < MAP_SIZE; y+=10){
+        for(int x=0; x < MAP_SIZE; x+=10){
+        	printf("%4.1f ", image.at<float>(y, x));
         }
         printf("\n");
     }
@@ -71,9 +73,11 @@ int main(int argc, char **argv)
     radius = atoi(argv[3]);
     velocity = atoi(argv[4]);
     */
-    end_coordinates[0] = MAP_SIZE / 2;
-    end_coordinates[1] = MAP_SIZE / 2;
-    radius = 3;
+    //end_coordinates[0] = MAP_SIZE / 2;
+    //end_coordinates[1] = MAP_SIZE / 2;
+    end_coordinates[0] = 260;
+    end_coordinates[1] = 350;
+    radius = 5000/30;
     velocity = 3;
 
     // Create object for the PathCalculator

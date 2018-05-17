@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <fstream>
 #include <string>
+#include <stdlib.h>
 
 using namespace std;
 
-float** global_map;
+//float** global_map;
 cv::Mat global_mat;
 double mat_min, mat_max;
 
@@ -29,6 +30,158 @@ PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationP
 
 }
 
+
+bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* pos2) const
+{
+    int start_x, start_y, end_x, end_y, start_z, end_z;
+    int ** result = NULL;
+    int line_len = 0;
+    int i, x, y, z;
+    int mx, my, mz;
+
+    if (pos1[0] < pos2[0])
+    {
+        start_x = pos1[0];
+        start_y = pos1[1];
+        start_z = pos1[2];
+        end_x = pos2[0];
+        end_y = pos2[1];
+        end_z = pos2[2];
+    }  else {
+        start_x = pos2[0];
+        start_y = pos2[1];
+        start_z = pos2[2];
+        end_x = pos1[0];
+        end_y = pos1[1];
+        end_z = pos2[2];
+    }
+
+    // Special cases
+    if (start_x == end_x && start_y == end_y && start_z == end_z)
+    {
+        // NULL
+        goto CHECK_VALIDITY;
+        
+        //return result;
+    }
+
+    // Only one axis changes
+    if (start_x == end_x && start_y == end_y)
+    {
+        line_len = abs(end_x - start_x - 1); // Doens't include the start and end points
+        result = new int*[line_len];
+        for (z = 0 ; z < line_len ; z++)
+        {
+            result[z] = new int[3];
+            result[z][0] = start_x;
+            result[z][1] = start_y;
+            result[z][2] = start_z + 1 + z;
+        }
+
+        goto CHECK_VALIDITY;
+    }
+
+    if (start_x == end_x && start_z == end_z)
+    {
+        line_len = abs(end_y - start_y - 1); // Doens't include the start and end points
+        result = new int*[line_len];
+        for (y = 0 ; y < line_len ; y++)
+        {
+            result[y] = new int[3];
+            result[y][0] = start_x;
+            result[y][1] = start_y + 1 + y;
+            result[y][2] = start_z;
+        }
+
+        goto CHECK_VALIDITY;
+    }
+
+    if (start_y == end_y && start_z == end_z)
+    {
+        line_len = abs(end_x - start_x - 1); // Doens't include the start and end points
+        result = new int*[line_len];
+        for (x = 0 ; x < line_len ; x++)
+        {
+            result[x] = new int[3];
+            result[x][0] = start_x + 1 + x;
+            result[x][1] = start_y;
+            result[x][2] = start_z;
+        }
+
+        goto CHECK_VALIDITY;
+    }
+
+
+
+    // z,y must change
+    if (start_x == end_x)
+    {
+        int run = end_y - start_y;
+        int rise = end_z - start_z;
+        int m = ((float) rise) / ((float) run);
+        float b = start_y - (m * start_z);
+        float z;
+        
+        line_len = abs(end_y - start_y - 1); // Doesn't include the start and end point
+        result = new int*[line_len];
+        for (y = start_y + 1; y <= end_y; y++)
+        {
+            result[y - start_y] = new int[2];
+            result[y - start_y][0] = start_x;
+            result[y - start_y][1] = y;
+            z = (m * y) + b; // Find z
+            z = int(round(z)); // round to nearest int
+            result[y - start_y][2] = z;
+        }
+
+        goto CHECK_VALIDITY;
+    }
+
+    // Now, even if y or z don't change, we don't care. It will still work
+    mx = end_x - start_x;
+    my = end_y - start_y;
+    mz = end_z - start_z;
+
+    line_len = abs(end_x - start_x - 1); // Doens't include the start and end points
+    result = new int*[line_len];
+
+    for (x = 0 ; x < line_len; x++ )
+    {
+        result[x] = new int[3];
+        result[x][0] = start_x + 1 + x;
+        i = (x + 1) / mx;
+        result[x][1] = int(round(start_y + i * my));
+        result[x][2] = int(round(start_z + i * mz));
+    }
+
+    goto CHECK_VALIDITY;
+
+    CHECK_VALIDITY:
+    return IsLineValid(result, line_len);
+
+}
+
+
+bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
+{
+    //int line_len = len(line);
+    if (line == NULL)
+        return true;
+
+    for (int i=0; i < len; i++)
+    {
+
+        if (global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))) > line[i][2])
+        {
+            //printf("x = %d, y = %d, z = %d z_map = %f\n", int(round(line[i][0])), int(round(line[i][1])), line[i][2], global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))));
+            return false;
+        }
+        
+    }
+    return true;
+}
+
+
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2) const
 {
 	const ob::RealVectorStateSpace::StateType& pos1 =
@@ -41,28 +194,41 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	double z = pos1[2] - pos2[2];
 	double dist;
 
-	dist = x*x + y*y + z*z;
-	dist = sqrt(dist);
-	return (dist < MAX_DISTANCE_FOR_STEP);
-		//check line-free
-		//return true/false;
+    dist = x*x + y*y + z*z;
+    dist = sqrt(dist);
+    if (dist > MAX_DISTANCE_FOR_STEP)
+    {
+        return false;
+    }
+
+    int* pos1_arr = new int[3];
+    pos1_arr[0] = int(round(pos1[0]));
+    pos1_arr[1] = int(round(pos1[1]));
+    pos1_arr[2] = int(round(pos1[2]));
+
+    int* pos2_arr = new int[3];
+    pos2_arr[0] = int(round(pos2[0]));
+    pos2_arr[1] = int(round(pos2[1]));
+    pos2_arr[2] = int(round(pos2[2]));
+
+    //int** checkPoints = LineBetweenPoints(pos1_arr, pos2_arr);
+    //if (checkPoints == NULL)
+	//    return true;
+
+    //int onePointSize = sizeof(checkPoints[0]) / sizeof(checkPoints[0][0]);
+    //int numPoints = sizeof(checkPoints) / onePointSize;
+
+    //int numPoints = sizeof(checkPoints)/sizeof(checkPoints[0]);
+    return (CheckLineBetweenPoints(pos1_arr, pos2_arr));
+
+//    global_mat.at<int>(x_int, y_int)
+
+    //return (dist < MAX_DISTANCE_FOR_STEP);
 }
 
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const
 {
-	const ob::RealVectorStateSpace::StateType& pos1 =
-			*s1->as<ob::RealVectorStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType& pos2 =
-			*s2->as<ob::RealVectorStateSpace::StateType>();
-
-	double x = pos1[0] - pos2[0];
-	double y = pos1[1] - pos2[1];
-	double z = pos1[2] - pos2[2];
-	double dist;
-
-	dist = x*x + y*y + z*z;
-	dist = sqrt(dist);
-	return (dist < MAX_DISTANCE_FOR_STEP);
+    return checkMotion(s1, s2);
 }
 
 
@@ -157,64 +323,76 @@ void PathCalculator::PlanRoute()
     si->setStateValidityCheckingResolution(0.03);
     si->setValidStateSamplerAllocator(allocMyValidStateSampler);
     si->setMotionValidator(std::make_shared<myMotionValidator>(si));
+    si->setup();
 
-    // create the start state at [1 1 1]
-    ob::ScopedState<ob::SE3StateSpace> start(space);
-    start[0] = 60;
-    start[1] = 1;
-    start[2] = global_mat.at<float>(start[1], start[0]);
-    printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
-    // start->rotation().setIdentity();
+    // create a planner for the defined space
+    auto planner(std::make_shared<og::PRM>(si, true));
 
     // create the goal state at [99 99 1]
     ob::ScopedState<ob::SE3StateSpace> goal(space);
 
-    goal[0] = 300;
-    goal[1] = 255;
+    goal[0] = coordinates[0];
+    goal[1] = coordinates[1];
     goal[2] = global_mat.at<float>(goal[1],goal[0]);
     printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
     // goal->rotation().setIdentity();
+    	const double PI = 3.14159;
+	    planner->setup();
 
-    auto pdef(std::make_shared<ob::ProblemDefinition>(si));
-    // set the start and goal states
-    pdef->setStartAndGoalStates(start, goal);
-    // create a planner for the defined space
-    auto planner(std::make_shared<og::PRM>(si, true));
-    // set the problem we are trying to solve for the planner
-    planner->setProblemDefinition(pdef);
-    // perform setup steps for the planner
-    planner->setup();
+//    	for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
+	    for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
+    		ob::ScopedState<ob::SE3StateSpace> start(space);
+    		start[0] = 180 + radius * cos(angle);
+    		start[1] = 180 + radius * sin(angle);
+    		start[0] = 180;
+    		start[1] = 20;
+    		start[2] = global_mat.at<float>((int)start[1], (int)start[0]);
+    		printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
 
-    // print the settings for this space
-    // si->printSettings(std::cout);
-    // print the problem settings
-    // pdef->print(std::cout);
 
-    // attempt to solve the problem within ten seconds of planning time
+    	    auto pdef(std::make_shared<ob::ProblemDefinition>(si));
+    	    // set the start and goal states
+    	    pdef->setStartAndGoalStates(start, goal);
+    	    // set the problem we are trying to solve for the planner
+    	    planner->setProblemDefinition(pdef);
+    	    // perform setup steps for the planner
 
-    ob::PlannerStatus solved = planner->ob::Planner::solve(300.0);
+    	    // print the settings for this space
+    	    // si->printSettings(std::cout);
+    	    // print the problem settings
+    	    // pdef->print(std::cout);
 
-    if (solved)
-    {
-        // get the goal representation from the problem definition (not the same as the goal state)
-        // and inquire about the found path
-        thePath = pdef->getSolutionPath();
-        std::cout << "Found solution:" << std::endl;
+    	    // attempt to solve the problem within ten seconds of planning time
+    	    ob::PlannerStatus solved = planner->ob::Planner::solve(600.0);
+    	    if (solved)
+    	    {
+    	        // get the goal representation from the problem definition (not the same as the goal state)
+    	        // and inquire about the found path
+    	        thePath = pdef->getSolutionPath();
+    	        std::cout << "Found solution:" << std::endl;
 
-        // print the path to screen
-        std::cout << "path- begin" << std::endl;
-        thePath->print(std::cout);
-        
-        std::ofstream fout;
-        fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
-        if(!fout)
-			std::cout << "Error opening file" << std::endl;
-        thePath->print(fout);
-        fout.close();
-        std::cout << "path- end" << std::endl;
-    }
-    else
-        std::cout << "No solution found" << std::endl;
+    	        // print the path to screen
+    	        std::cout << "path- begin" << std::endl;
+    	        thePath->print(std::cout);
+
+    	        std::ofstream fout;
+    	        fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
+    	        if(!fout)
+    				std::cout << "Error opening file" << std::endl;
+    	        thePath->print(fout);
+    	        fout.close();
+    	        std::cout << "path- end" << std::endl;
+    	    }
+    	    else
+    	        std::cout << "No solution found" << std::endl;
+
+    	}
+        // start->rotation().setIdentity();
+
+
+
+
+
 }
 
 
@@ -288,8 +466,8 @@ void PathCalculator::Show()
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
 	
-	cv::circle(normalized_img, cv::Point(60,1), 3, cv::Scalar(255,0,0), cv::FILLED);
-	cv::circle(normalized_img, cv::Point(300,255), 3, cv::Scalar(255,0,0), cv::FILLED);
+	cv::circle(normalized_img, cv::Point(180,20), 3, cv::Scalar(255,0,0), cv::FILLED);
+    cv::circle(normalized_img, cv::Point(260,350), 3, cv::Scalar(255,0,0), cv::FILLED);
 
 
 	fclose(readFile);
