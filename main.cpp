@@ -54,6 +54,12 @@ int main(int argc, char **argv)
 	image = src_image(region_of_interest);
 	
     printf("Map size is %d X %d, map overview: (point every 5 coordinates):\n", MAP_SIZE, MAP_SIZE);
+    for(int i=0; i < MAP_SIZE; i+=10){
+        for(int j=0; j < MAP_SIZE; j+=10){
+        	printf("%4.0f ", image.at<float>(i, j));
+        }
+        printf("\n");
+    }
 
     end_coordinates = new int[2];
 

@@ -89,9 +89,9 @@ public:
         int x_int = (int)x;
         int y_int = (int)y;
 	//printf("point at map: (%.2f,%.2f,%.2f), ", x,y,global_mat.at<float>(x_int, y_int));
-        if (global_mat.at<float>(x_int, y_int) > mat_max)
+        if (global_mat.at<float>(y_int, x_int) > mat_max)
         	return false;
-        double z = rng_.uniformReal(global_mat.at<float>(x_int, y_int), mat_max);
+        double z = rng_.uniformReal(global_mat.at<float>(y_int, x_int), mat_max);
 
         val[0] = x;
         val[1] = y;
@@ -160,17 +160,19 @@ void PathCalculator::PlanRoute()
 
     // create the start state at [1 1 1]
     ob::ScopedState<ob::SE3StateSpace> start(space);
-    start[0] = 1;
+    start[0] = 60;
     start[1] = 1;
-    start[2] = global_mat.at<float>(1, 1);
+    start[2] = global_mat.at<float>(start[1], start[0]);
     printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
     // start->rotation().setIdentity();
 
     // create the goal state at [99 99 1]
     ob::ScopedState<ob::SE3StateSpace> goal(space);
-    goal[0] = (double)coordinates[0];
-    goal[1] = (double)coordinates[1];
-    goal[2] = global_mat.at<float>(coordinates[0], coordinates[1]);
+//    goal[0] = (double)coordinates[0];
+//    goal[1] = (double)coordinates[1];
+    goal[0] = 300;
+    goal[1] = 255;
+    goal[2] = global_mat.at<float>(goal[1],goal[0]);
     printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
     // goal->rotation().setIdentity();
 
@@ -190,7 +192,7 @@ void PathCalculator::PlanRoute()
     // pdef->print(std::cout);
 
     // attempt to solve the problem within ten seconds of planning time
-    ob::PlannerStatus solved = planner->ob::Planner::solve(1.0);
+    ob::PlannerStatus solved = planner->ob::Planner::solve(300.0);
     if (solved)
     {
         // get the goal representation from the problem definition (not the same as the goal state)
@@ -285,6 +287,9 @@ void PathCalculator::Show()
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
 	
+	cv::circle(normalized_img, cv::Point(60,1), 3, cv::Scalar(255,0,0), cv::FILLED);
+	cv::circle(normalized_img, cv::Point(300,255), 3, cv::Scalar(255,0,0), cv::FILLED);
+
 
 	fclose(readFile);
 	
