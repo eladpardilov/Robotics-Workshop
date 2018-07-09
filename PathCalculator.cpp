@@ -12,17 +12,20 @@ using namespace std;
 cv::Mat global_mat;
 cv::Mat funnel_mat;
 double mat_min, mat_max;
+int up_down_rate, turn_rate;
 
-PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int radius, int velocity)
+PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius)
 {
 	this->mat = mat;
 	global_mat = mat;
 	cv::minMaxLoc(global_mat, &mat_min, &mat_max);
 	this->coordinates = coordinates;
 	this->max_turn_rate = max_turn_rate;
+	this->max_up_down_rate = max_up_down_rate;
 	this->radius = radius;
-	this->velocity = velocity;
 	cv::Size size = global_mat.size();
+	turn_rate = max_turn_rate;
+	up_down_rate = max_up_down_rate;
 	rows = size.height;
 	cols = size.width;
 	
@@ -40,6 +43,7 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	int line_len = 0;
 	int i, x, y, z;
 	int mx, my, mz;
+	double vertical_velocity, motion_time, horiz_dist;
 
 	if (pos1[0] < pos2[0])
 	{
@@ -57,6 +61,17 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 		end_y = pos1[1];
 		end_z = pos2[2];
 	}
+
+	mx = end_x - start_x;
+	my = end_y - start_y;
+	mz = end_z - start_z;
+
+	// check up/down rate
+	horiz_dist = sqrt(mx*mx + my*my + mz*mz);
+	motion_time = horiz_dist / CONSTANT_VELOCITY; // in seconds
+	vertical_velocity = abs(end_z - start_z) / motion_time; // meters per second, in Z axis
+	if (vertical_velocity > up_down_rate)
+		return false;
 
 	// Special cases
 	if (start_x == end_x && start_y == end_y && start_z == end_z)
@@ -113,8 +128,6 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 		goto CHECK_VALIDITY;
 	}
 
-
-
 	// z,y must change
 	if (start_x == end_x)
 	{
@@ -140,10 +153,6 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	}
 
 	// Now, even if y or z don't change, we don't care. It will still work
-	mx = end_x - start_x;
-	my = end_y - start_y;
-	mz = end_z - start_z;
-
 	line_len = abs(end_x - start_x - 1); // Doens't include the start and end points
 	result = new int*[line_len];
 
@@ -251,7 +260,10 @@ public:
 	// Valid states satisfy the following constraints: z > global_map[x,y]
 	bool sample(ob::State *state) override
 	{
-		double* val = static_cast<ob::RealVectorStateSpace::StateType*>(state)->values;
+		const auto *pos = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+		const auto *angle = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+		//double* val = static_cast<ob::RealVectorStateSpace::StateType*>(state)->values;
+
 		double x = rng_.uniformReal(0,MAP_SIZE);
 		double y = rng_.uniformReal(0,MAP_SIZE);
 		int x_int = (int)x;
@@ -262,9 +274,10 @@ public:
 		double z_min = max(global_mat.at<float>(y_int, x_int), funnel_mat.at<float>(y_int, x_int));
 		double z = rng_.uniformReal(z_min, mat_max);
 
-		val[0] = x;
-		val[1] = y;
-		val[2] = z;
+		pos->values[0] = x;
+		pos->values[1] = y;
+		pos->values[2] = z;
+		angle->values[0] = rng_.uniformReal(0, 360);
 		if (si_->isValid(state)) {
 			//printf("point taken: (%.2f,%.2f,%.2f)", x,y,z);
 			//printf(" valid state\n");
@@ -296,10 +309,11 @@ ob::ValidStateSamplerPtr PathCalculator::allocMyValidStateSampler(const ob::Spac
 // above, because we need to check path segments for validity
 bool PathCalculator::isStateValid(const ob::State *state)
 {
-	const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
-	if ((pos[0]<MAP_SIZE && pos[0]>0) && (pos[1]<MAP_SIZE && pos[1]>0)) {
-		return pos[2] < mat_max + 1;
-	}
+	const auto *pos = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+
+	//const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
+	if ((pos->values[0]<MAP_SIZE && pos->values[0]>0) && (pos->values[1]<MAP_SIZE && pos->values[1]>0))
+		return pos->values[2] < mat_max + 1;
 	else
 		return false;
 }
@@ -344,20 +358,27 @@ void PathCalculator::PlanRoute()
 {
 	int * goal_arr = new int[2];
 	// construct the state space we are planning in
-	auto space(std::make_shared<ob::RealVectorStateSpace>(3));
+	//auto space(std::make_shared<ob::RealVectorStateSpace>(4));
+	ob::CompoundStateSpace *cs = new ompl::base::CompoundStateSpace();
+	cs->addSubspace(ompl::base::StateSpacePtr(std::make_shared<ob::RealVectorStateSpace>(3)), 1.0);
+	cs->addSubspace(ompl::base::StateSpacePtr(std::make_shared<ob::RealVectorStateSpace>(1)), 0.0);
+	ob::StateSpacePtr space(cs);
 	// auto space(std::make_shared<ob::SE3StateSpace>());
 
 	// set the bounds for the R^3 part of SE(3)
 	ob::RealVectorBounds bounds(3);
+	ob::RealVectorBounds angle_bound(1);
 	bounds.setLow(0);
 	bounds.setHigh(MAP_SIZE);
 	bounds.setLow(2, mat_min);
 	bounds.setHigh(2, mat_max);
-	space->setBounds(bounds);
+	angle_bound.setLow(-1);
+	angle_bound.setHigh(360);
+	cs->getSubspace(0)->as<ob::RealVectorStateSpace>()->setBounds(bounds);
+	cs->getSubspace(1)->as<ob::RealVectorStateSpace>()->setBounds(angle_bound);
 
 	// construct an instance of  space information from this state space
 	auto si(std::make_shared<ob::SpaceInformation>(space));
-
 	// set state validity checking for this space
 	si->setStateValidityChecker(isStateValid);
 	si->setStateValidityCheckingResolution(0.03);
@@ -374,6 +395,8 @@ void PathCalculator::PlanRoute()
 	goal[0] = coordinates[0];
 	goal[1] = coordinates[1];
 	goal[2] = global_mat.at<float>(goal[1],goal[0]);
+	// we will use the -1 to identify we are at the destination and angle doesn't matter
+	goal[3] = -1;
 	printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
 	// goal->rotation().setIdentity();
 	const double PI = 3.14159;
@@ -383,20 +406,17 @@ void PathCalculator::PlanRoute()
 	goal_arr[0] = int(goal[0]);
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
-<<<<<<< HEAD
 	free(goal_arr);
-=======
-
->>>>>>> funnel
+	
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
-		ob::ScopedState<ob::SE3StateSpace> start(space);
+		ob::ScopedState<ob::RealVectorStateSpace> start(space);
 		start[0] = MAP_SIZE/2 + radius * cos(angle);
 		start[1] = MAP_SIZE/2 + radius * sin(angle);
-		start[0] = 150;
-		start[1] = 150;
+		start[3] = (int)(360 * angle / (2 * PI) + 180) % 360;
+		start[0] = 0.01;
+		start[1] = 20;
 		start[2] = mat_max;
-		//start[2] = global_mat.at<float>((int)start[1], (int)start[0]);
 		printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
 
 		auto pdef(std::make_shared<ob::ProblemDefinition>(si));

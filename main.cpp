@@ -25,37 +25,34 @@ int main(int argc, char **argv)
 	int rows;
 	int cols;
 	int * global_end_coordinates = new int[2];
-	int * tile_coordinates = new int[2];
 	int * end_coordinates = new int[2];
 	int max_turn_rate;
+	int max_up_down_rate;
 	int radius;
-	int velocity;
 	cv::Mat src_image, image, image2;
 
 
 	if (argc < 2) {
 		printf("Ignoring input params...\n");
-		global_end_coordinates[0] = 180;
-		global_end_coordinates[1] = 180;
-		max_turn_rate = 45;
+		global_end_coordinates[0] = 230;
+		global_end_coordinates[1] = 350;
+		max_turn_rate = 45; // angle per second
+		max_up_down_rate = 100; // meters per minute
 		radius = 5000/30;
-		velocity = 3;
 	} else {
 		// Parse Arguments
 		global_end_coordinates[0] = atoi(argv[1]);
 		global_end_coordinates[1] = atoi(argv[2]);
 		max_turn_rate = atoi(argv[3]);
+		max_up_down_rate = atoi(argv[4]);
 		radius = 5000/30;
-		velocity = 3;
 	}
 	
-	tile_coordinates[0] = global_end_coordinates[0] / MAP_SIZE;
-	tile_coordinates[1] = global_end_coordinates[1] / MAP_SIZE;
-	end_coordinates[0] = global_end_coordinates[0] % MAP_SIZE;
-	end_coordinates[1] = global_end_coordinates[1] % MAP_SIZE;
+	end_coordinates[0] = 180;
+	end_coordinates[1] = 180;
 
 	printf("Taking (%d,%d) as destination coordinates.\n", global_end_coordinates[0], global_end_coordinates[1]);
-	printf("-> (%d,%d) in tile (%d,%d)\n", end_coordinates[0], end_coordinates[1], tile_coordinates[0], tile_coordinates[1]);
+	printf("-> (%d,%d) in the displayed tile\n", end_coordinates[0], end_coordinates[1]);
 
 
 	// Check the number of parameters
@@ -70,7 +67,7 @@ int main(int argc, char **argv)
 	
 	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_UNCHANGED);
 	
-	cv::Rect region_of_interest = cv::Rect(tile_coordinates[0] * MAP_SIZE, tile_coordinates[1] * MAP_SIZE, MAP_SIZE, MAP_SIZE);
+	cv::Rect region_of_interest = cv::Rect(global_end_coordinates[0] - MAP_SIZE/2, global_end_coordinates[1] - MAP_SIZE/2, MAP_SIZE, MAP_SIZE);
 
 	image2 = src_image(region_of_interest);
 
@@ -85,7 +82,7 @@ int main(int argc, char **argv)
 	}*/
 
 	// Create object for the PathCalculator
-	PathCalculator path(image, end_coordinates, max_turn_rate, radius, velocity);
+	PathCalculator path(image, end_coordinates, max_turn_rate, max_up_down_rate, radius);
 
 	path.PlanRoute();
 	
