@@ -36,12 +36,14 @@ int main(int argc, char **argv)
 		printf("Ignoring input params...\n");
 		global_end_coordinates[0] = 260;
 		global_end_coordinates[1] = 350;
+		max_turn_rate = 45;
 		radius = 5000/30;
 		velocity = 3;
 	} else {
 		// Parse Arguments
-		global_end_coordinates[0] = atoi(argv[1]);;
-		global_end_coordinates[1] = atoi(argv[2]);;
+		global_end_coordinates[0] = atoi(argv[1]);
+		global_end_coordinates[1] = atoi(argv[2]);
+		max_turn_rate = atoi(argv[3]);
 		radius = 5000/30;
 		velocity = 3;
 	}
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 	}
 
 	// Create object for the PathCalculator
-	PathCalculator path(image, end_coordinates, radius, velocity);
+	PathCalculator path(image, end_coordinates, max_turn_rate, radius, velocity);
 
 	path.PlanRoute();
 	

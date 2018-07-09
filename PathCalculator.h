@@ -51,7 +51,7 @@ private:
 	static bool isStateValid(const ob::State *state);
 
 public:
-	PathCalculator (cv::Mat mat, int* coordinates, int radius, int velocity);
+	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int radius, int velocity);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void Show();

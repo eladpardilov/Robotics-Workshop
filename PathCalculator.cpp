@@ -12,12 +12,13 @@ using namespace std;
 cv::Mat global_mat;
 double mat_min, mat_max;
 
-PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int radius, int velocity)
+PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int radius, int velocity)
 {
 	this->mat = mat;
 	global_mat = mat;
 	cv::minMaxLoc(global_mat, &mat_min, &mat_max);
 	this->coordinates = coordinates;
+	this->max_turn_rate = max_turn_rate;
 	this->radius = radius;
 	this->velocity = velocity;
 	cv::Size size = global_mat.size();
