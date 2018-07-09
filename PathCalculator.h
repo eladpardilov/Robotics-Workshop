@@ -33,6 +33,7 @@ class PathCalculator
 private:
 	cv::Mat mat;
 	int* coordinates = NULL;
+	int max_turn_rate;
 	int radius;
 	int velocity;
 	ob::PathPtr thePath;

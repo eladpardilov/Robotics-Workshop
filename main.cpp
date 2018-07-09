@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 	int * global_end_coordinates = new int[2];
 	int * tile_coordinates = new int[2];
 	int * end_coordinates = new int[2];
+	int max_turn_rate;
 	int radius;
 	int velocity;
 	cv::Mat src_image, image, image2;
