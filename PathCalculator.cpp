@@ -296,10 +296,47 @@ bool PathCalculator::isStateValid(const ob::State *state)
 {
 	const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
 	if ((pos[0]<MAP_SIZE && pos[0]>0) && (pos[1]<MAP_SIZE && pos[1]>0)) {
-		return pos[2] < mat_max;
+		return pos[2] < mat_max + 1;
 	}
 	else
 		return false;
+}
+
+// this function is needed, even when we can write a sampler like the one
+// above, because we need to check path segments for validity
+void PathCalculator::calcFunnel(int* goal)
+{
+	float r, h;
+	// Diff between z0 and max height in the map
+	float cone_h = float(mat_max - global_mat.at<float>(goal[1], goal[0]));
+	//float cone_h = mat_max;
+	// Start radius
+	float cone_r = float(this->radius);
+	// Calc Tangent Theta of the cone
+	float tanTheta = cone_r / cone_h;
+	// initialize funnel matrix
+	funnel_mat = cv::Mat(global_mat.size(), CV_32F);
+
+	for (int y = 0; y < this->rows; y++)
+	{
+		for (int x = 0; x < this->cols; x++)
+		{
+			r = sqrt(pow((x - goal[0]),2) + pow((y - goal[1]),2));
+			if (r < cone_r)
+			{
+				// Find cone height
+				h = r / tanTheta;
+				// Add destination heigth (offset)
+				h = h + global_mat.at<float>(goal[1], goal[0]);
+				funnel_mat.at<float>(y, x) = h;
+			}
+			else
+			{
+				funnel_mat.at<float>(y, x) = mat_max;
+			}
+			
+		}
+	}
 }
 
 void PathCalculator::PlanRoute()
@@ -340,6 +377,11 @@ void PathCalculator::PlanRoute()
 	const double PI = 3.14159;
 	planner->setup();
 
+	// Calc the funnel area of the points generator
+	goal_arr[0] = int(goal[0]);
+	goal_arr[1] = int(goal[1]);
+	calcFunnel(goal_arr);
+	free(goal_arr);
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::SE3StateSpace> start(space);

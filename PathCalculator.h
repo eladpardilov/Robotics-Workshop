@@ -50,6 +50,7 @@ private:
 	};
 	static ob::ValidStateSamplerPtr allocMyValidStateSampler(const ob::SpaceInformation *si);
 	static bool isStateValid(const ob::State *state);
+	void calcFunnel(int* goal);
 
 public:
 	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int radius, int velocity);
