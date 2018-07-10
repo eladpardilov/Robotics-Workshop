@@ -337,7 +337,6 @@ void PathCalculator::calcFunnel(int* goal)
 			{
 				funnel_mat.at<float>(y, x) = mat_max;
 			}
-			
 		}
 	}
 }
@@ -386,13 +385,6 @@ void PathCalculator::PlanRoute()
 	goal_arr[0] = int(goal[0]);
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
-
-	for(int y=0; y < rows; y+=10){
-		for(int x=0; x < cols; x+=10){
-			printf("%4.1f ", funnel_mat.at<float>(y, x));
-		}
-		printf("\n");
-	}
 
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
