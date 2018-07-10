@@ -10,6 +10,7 @@ using namespace std;
 
 //float** global_map;
 cv::Mat global_mat;
+cv::Mat funnel_mat;
 double mat_min, mat_max;
 
 PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int radius, int velocity)
@@ -258,7 +259,8 @@ public:
 	//printf("point at map: (%.2f,%.2f,%.2f), ", x,y,global_mat.at<float>(x_int, y_int));
 		if (global_mat.at<float>(y_int, x_int) > mat_max)
 			return false;
-		double z = rng_.uniformReal(global_mat.at<float>(y_int, x_int), mat_max);
+		double z_min = max(global_mat.at<float>(y_int, x_int), funnel_mat.at<float>(y_int, x_int));
+		double z = rng_.uniformReal(z_min, mat_max);
 
 		val[0] = x;
 		val[1] = y;
@@ -334,13 +336,13 @@ void PathCalculator::calcFunnel(int* goal)
 			{
 				funnel_mat.at<float>(y, x) = mat_max;
 			}
-			
 		}
 	}
 }
 
 void PathCalculator::PlanRoute()
 {
+	int * goal_arr = new int[2];
 	// construct the state space we are planning in
 	auto space(std::make_shared<ob::RealVectorStateSpace>(3));
 	// auto space(std::make_shared<ob::SE3StateSpace>());
@@ -381,17 +383,21 @@ void PathCalculator::PlanRoute()
 	goal_arr[0] = int(goal[0]);
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
+<<<<<<< HEAD
 	free(goal_arr);
+=======
+
+>>>>>>> funnel
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::SE3StateSpace> start(space);
-		start[0] = 180 + radius * cos(angle);
-		start[1] = 180 + radius * sin(angle);
-		start[0] = 0.01;
-		start[1] = 20;
-		start[2] = global_mat.at<float>((int)start[1], (int)start[0]);
+		start[0] = MAP_SIZE/2 + radius * cos(angle);
+		start[1] = MAP_SIZE/2 + radius * sin(angle);
+		start[0] = 150;
+		start[1] = 150;
+		start[2] = mat_max;
+		//start[2] = global_mat.at<float>((int)start[1], (int)start[0]);
 		printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
-
 
 		auto pdef(std::make_shared<ob::ProblemDefinition>(si));
 		// set the start and goal states
@@ -431,6 +437,7 @@ void PathCalculator::PlanRoute()
 
 	}
 	// start->rotation().setIdentity();
+	free(goal_arr);
 }
 
 
@@ -507,7 +514,7 @@ void PathCalculator::Show()
 
 
 	fclose(readFile);
-	
+	funnel_mat.release();
 	cv::imshow( "Our Plane Path", normalized_img);
 	
 	cv::waitKey(0);

@@ -35,8 +35,8 @@ int main(int argc, char **argv)
 
 	if (argc < 2) {
 		printf("Ignoring input params...\n");
-		global_end_coordinates[0] = 260;
-		global_end_coordinates[1] = 350;
+		global_end_coordinates[0] = 180;
+		global_end_coordinates[1] = 180;
 		max_turn_rate = 45;
 		radius = 5000/30;
 		velocity = 3;
@@ -75,14 +75,14 @@ int main(int argc, char **argv)
 	image2 = src_image(region_of_interest);
 
 	image = image2 / Z_AXIS_DIV_FACTOR;
-	
+/*
 	printf("Map size is %d X %d, map overview: (point every 10 coordinates):\n", MAP_SIZE, MAP_SIZE);
 	for(int y=0; y < MAP_SIZE; y+=10){
 		for(int x=0; x < MAP_SIZE; x+=10){
 			printf("%4.1f ", image.at<float>(y, x));
 		}
 		printf("\n");
-	}
+	}*/
 
 	// Create object for the PathCalculator
 	PathCalculator path(image, end_coordinates, max_turn_rate, radius, velocity);
