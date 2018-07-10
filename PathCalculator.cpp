@@ -298,7 +298,7 @@ bool PathCalculator::isStateValid(const ob::State *state)
 {
 	const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
 	if ((pos[0]<MAP_SIZE && pos[0]>0) && (pos[1]<MAP_SIZE && pos[1]>0)) {
-		return pos[2] < mat_max;
+		return pos[2] < mat_max + 1;
 	}
 	else
 		return false;
@@ -307,7 +307,7 @@ bool PathCalculator::isStateValid(const ob::State *state)
 
 // this function is needed, even when we can write a sampler like the one
 // above, because we need to check path segments for validity
-bool PathCalculator::calcFunnel(int* goal)
+void PathCalculator::calcFunnel(int* goal)
 {
 	float r, h;
 	// Diff between z0 and max height in the map
@@ -318,11 +318,11 @@ bool PathCalculator::calcFunnel(int* goal)
 	// Calc Tangent Theta of the cone
 	float tanTheta = cone_r / cone_h;
 	// initialize funnel matrix
-	funnel_mat = cv::Mat(global_mat.size(), CV_8U);
+	funnel_mat = cv::Mat(global_mat.size(), CV_32F);
 
-	for (int x = 0; x < this->cols; x++)
+	for (int y = 0; y < this->rows; y++)
 	{
-		for (int y = 0; y < this->rows; y++)
+		for (int x = 0; x < this->cols; x++)
 		{
 			r = sqrt(pow((x - goal[0]),2) + pow((y - goal[1]),2));
 			if (r < cone_r)
@@ -331,12 +331,13 @@ bool PathCalculator::calcFunnel(int* goal)
 				h = r / tanTheta;
 				// Add destination heigth (offset)
 				h = h + global_mat.at<float>(goal[1], goal[0]);
-				funnel_mat.at<float>(y, x) = h - 10;
+				funnel_mat.at<float>(y, x) = h;
 			}
 			else
 			{
 				funnel_mat.at<float>(y, x) = mat_max;
 			}
+			
 		}
 	}
 }
@@ -386,6 +387,12 @@ void PathCalculator::PlanRoute()
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
 
+	for(int y=0; y < rows; y+=10){
+		for(int x=0; x < cols; x+=10){
+			printf("%4.1f ", funnel_mat.at<float>(y, x));
+		}
+		printf("\n");
+	}
 
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
