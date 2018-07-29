@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <stdlib.h>
+#include "SimpleBatchPRM.h"
 
 using namespace std;
 
@@ -195,14 +196,14 @@ bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
 
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2) const
 {
-	const ob::RealVectorStateSpace::StateType& pos1 =
-			*s1->as<ob::RealVectorStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType& pos2 =
-			*s2->as<ob::RealVectorStateSpace::StateType>();
+	const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+	const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+	const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 
-	double x = pos1[0] - pos2[0];
-	double y = pos1[1] - pos2[1];
-	double z = pos1[2] - pos2[2];
+	double x = pos1->values[0] - pos2->values[0];
+	double y = pos1->values[1] - pos2->values[1];
+	double z = pos1->values[2] - pos2->values[2];
 	double dist;
 
 	dist = x*x + y*y + z*z;
@@ -213,14 +214,14 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	}
 
 	int* pos1_arr = new int[3];
-	pos1_arr[0] = int(round(pos1[0]));
-	pos1_arr[1] = int(round(pos1[1]));
-	pos1_arr[2] = int(round(pos1[2]));
+	pos1_arr[0] = int(round(pos1->values[0]));
+	pos1_arr[1] = int(round(pos1->values[1]));
+	pos1_arr[2] = int(round(pos1->values[2]));
 
 	int* pos2_arr = new int[3];
-	pos2_arr[0] = int(round(pos2[0]));
-	pos2_arr[1] = int(round(pos2[1]));
-	pos2_arr[2] = int(round(pos2[2]));
+	pos2_arr[0] = int(round(pos2->values[0]));
+	pos2_arr[1] = int(round(pos2->values[1]));
+	pos2_arr[2] = int(round(pos2->values[2]));
 
 	//int** checkPoints = LineBetweenPoints(pos1_arr, pos2_arr);
 	//if (checkPoints == NULL)
@@ -387,9 +388,8 @@ void PathCalculator::PlanRoute()
 	si->setup();
 
 	// create a planner for the defined space
-	auto planner(std::make_shared<og::PRM>(si, true));
-
-	// create the goal state at [99 99 1]
+	auto planner(std::make_shared<og::SimpleBatchPRM>(si, true));
+	planner->setNumMilestones(10000);
 	ob::ScopedState<ob::SE3StateSpace> goal(space);
 
 	goal[0] = coordinates[0];
@@ -406,7 +406,6 @@ void PathCalculator::PlanRoute()
 	goal_arr[0] = int(goal[0]);
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
-	free(goal_arr);
 	
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
@@ -454,7 +453,7 @@ void PathCalculator::PlanRoute()
 		}
 		else
 			std::cout << "No solution found" << std::endl;
-
+	
 	}
 	// start->rotation().setIdentity();
 	free(goal_arr);
@@ -463,7 +462,7 @@ void PathCalculator::PlanRoute()
 
 void PathCalculator::Show()
 {
-	float x1, y1, z1, x2,y2,z2;
+	float x1, y1, z1, x2,y2,z2, temp;
 	int numOfPoints;
 	float colorFactor;
 	
@@ -511,9 +510,14 @@ void PathCalculator::Show()
 	cv::Mat normalized_img;
 	
 	global_mat.convertTo(normalized_img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
-	
+	fscanf(readFile, "Compound state [\n");
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x1, &y1, &z1);
+	fscanf(readFile,  "RealVectorState [%f]\n", &temp);
+	fscanf(readFile, "]\n");
+	fscanf(readFile, "Compound state [\n");
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
+	fscanf(readFile,  "RealVectorState [%f]\n", &temp);
+	fscanf(readFile, "]\n");
 	cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 	//circle(image, Point(x1,y1), 3, Scalar(255,0,0), FILLED);
 	for(int i=3; i<=numOfPoints; i++)
@@ -523,8 +527,11 @@ void PathCalculator::Show()
 		y1=y2;
 		z1=z2;
 			
+		fscanf(readFile, "Compound state [\n");
 		fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
-			
+		fscanf(readFile,  "RealVectorState [%f]\n", &temp);
+		fscanf(readFile, "]\n");
+		
 		cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
