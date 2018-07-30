@@ -14,6 +14,8 @@ cv::Mat global_mat;
 cv::Mat funnel_mat;
 double mat_min, mat_max;
 int up_down_rate, turn_rate;
+double PI = 3.1415926535897;
+
 
 PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius)
 {
@@ -34,6 +36,54 @@ PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate,
 
 PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationPtr &si) : ob::MotionValidator(si) {
 
+}
+
+
+double PathCalculator::myMotionValidator::FindAngle(double theta, double phi) const
+{
+	double abs_val = std::abs(theta - phi);
+	if (abs_val < 180)
+	{
+		return abs_val;
+	}
+	else
+	{
+		return (360 - abs_val);
+	}
+}
+
+bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, int x1, int y1, double t1, int x2, int y2, double t2) const
+{
+	double phi; 
+	double a1;
+	double a2;
+	double line_time;
+	bool res;
+
+	// The angle of the line with x axis
+	phi = atan2(y2 - y1, x2 - x1);
+	phi = ( phi >= 0 ? phi : ( 2*PI + phi ) ) * 360 / ( 2*PI );
+
+	a1 = FindAngle(t1, phi);
+	a2 = FindAngle(t2, phi);
+
+	//printf("a1 = %f, a2 = %f\n", a1, a2);
+	//printf("phi = " + (str)phi + " a1 = " + (str)a1 + " a2 = " + (str)a2 + " t = " + (str)line_time)
+
+	line_time = dist / CONSTANT_VELOCITY;
+
+
+	if (((a1 + a2) / line_time) > double(turn_rate))
+	{
+		res = false;
+	}
+	else
+	{
+		res = true;
+	}
+
+	//printf("phi =  %f,  a1 = %f, a2 = %f, t = %f, res = %d\n", phi, a1, a2, line_time, res);
+	return res;
 }
 
 
@@ -201,6 +251,9 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
 	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 
+	bool isLine;
+	bool isAngle;
+	
 	double x = pos1->values[0] - pos2->values[0];
 	double y = pos1->values[1] - pos2->values[1];
 	double z = pos1->values[2] - pos2->values[2];
@@ -231,7 +284,10 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	//int numPoints = sizeof(checkPoints) / onePointSize;
 
 	//int numPoints = sizeof(checkPoints)/sizeof(checkPoints[0]);
-	return (CheckLineBetweenPoints(pos1_arr, pos2_arr));
+	isLine = CheckLineBetweenPoints(pos1_arr, pos2_arr);
+	isAngle = CheckAngleBetweenPoints(dist, pos1_arr[0], pos1_arr[1], angle1->values[0], pos2_arr[0], pos2_arr[1], angle2->values[0]);
+
+	return (isLine && isAngle);
 
 //	global_mat.at<int>(x_int, y_int)
 
@@ -389,7 +445,7 @@ void PathCalculator::PlanRoute()
 
 	// create a planner for the defined space
 	auto planner(std::make_shared<og::SimpleBatchPRM>(si, true));
-	planner->setNumMilestones(10000);
+	planner->setNumMilestones(50000);
 	ob::ScopedState<ob::SE3StateSpace> goal(space);
 
 	goal[0] = coordinates[0];
@@ -399,7 +455,6 @@ void PathCalculator::PlanRoute()
 	goal[3] = -1;
 	printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
 	// goal->rotation().setIdentity();
-	const double PI = 3.14159;
 	planner->setup();
 
 	// Calc the funnel area of the points generator

@@ -33,7 +33,7 @@ class PathCalculator
 private:
 	cv::Mat mat;
 	int* coordinates = NULL;
-	int max_turn_rate;
+	double max_turn_rate;
 	int max_up_down_rate;
 	int radius;
 	ob::PathPtr thePath;
@@ -46,7 +46,9 @@ private:
 		bool checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const;
 		bool IsLineValid(int** line, int len) const;
 		bool CheckLineBetweenPoints(int* pos1, int* pos2) const;
-		
+		bool CheckAngleBetweenPoints(double dist, int x1, int y1, double t1, int x2, int y2, double t2) const;
+		double FindAngle(double theta, double phi) const;
+
 	};
 	static ob::ValidStateSamplerPtr allocMyValidStateSampler(const ob::SpaceInformation *si);
 	static bool isStateValid(const ob::State *state);
