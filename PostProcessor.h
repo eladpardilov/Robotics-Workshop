@@ -24,6 +24,7 @@ private:
 	int* coordinates = NULL;
 	int rows;
 	int cols;
+	int output_index;
 
 	
 public:

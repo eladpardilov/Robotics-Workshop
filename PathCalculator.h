@@ -37,6 +37,7 @@ private:
 	int max_up_down_rate;
 	int radius;
 	int num_states;
+	int output_index;
 	ob::PathPtr thePath;
 	
 	class myMotionValidator : public ob::MotionValidator

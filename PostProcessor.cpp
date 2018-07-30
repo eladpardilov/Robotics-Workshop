@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <stdlib.h>
+#include <sstream>
 
 #include "PostProcessor.h"
 
@@ -12,11 +13,9 @@ using namespace std;
 PostProcessor::PostProcessor(int* coordinates)
 {
 	this->coordinates = coordinates;
+	this->output_index = 0;
 	
 }
-
-
-
 
 
 void PostProcessor::Show()
@@ -24,10 +23,14 @@ void PostProcessor::Show()
 	float x1, y1, z1, x2,y2,z2, temp;
 	int numOfPoints;
 	float colorFactor;
-	
+	char file_name[11];
+
 	//reading from the "path->print()" file
 	FILE * readFile;
-	readFile = fopen(DOTS_FILE_NAME, "r");
+
+	sprintf(file_name, "dots_%d.txt", this->output_index);
+	this->output_index = this->output_index + 1;
+	readFile = fopen(file_name, "r");
 	fscanf(readFile, "Geometric path with %d states\n", &numOfPoints);
 	//creating a Mat to display
 	//cv::Mat image;
@@ -39,7 +42,7 @@ void PostProcessor::Show()
 	return;}
 	if(! image.data ) 
 	{
-	  std::cout <<  "Could not open or find the image" << std::endl ;
+	  cout <<  "Could not open or find the image" << std::endl ;
 	  return;
 	}*/
 	

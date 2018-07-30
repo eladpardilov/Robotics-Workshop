@@ -32,6 +32,7 @@ PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate,
 	up_down_rate = max_up_down_rate;
 	rows = size.height;
 	cols = size.width;
+	this->output_index = 0;
 	
 }
 
@@ -428,6 +429,8 @@ void PathCalculator::calcFunnel(int* goal)
 void PathCalculator::PlanRoute()
 {
 	int * goal_arr = new int[2];
+	char file_name[11];
+
 	// construct the state space we are planning in
 	//auto space(std::make_shared<ob::RealVectorStateSpace>(4));
 	ob::CompoundStateSpace *cs = new ompl::base::CompoundStateSpace();
@@ -513,7 +516,11 @@ void PathCalculator::PlanRoute()
 			thePath->print(std::cout);
 
 			std::ofstream fout;
-			fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
+
+			sprintf(file_name, "dots_%d.txt", this->output_index);
+			this->output_index = this->output_index + 1; 
+			fout.open(file_name, std::ios::out | std::ios::trunc);
+			//fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
 			if(!fout)
 				std::cout << "Error opening file" << std::endl;
 			thePath->print(fout);

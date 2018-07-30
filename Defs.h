@@ -19,7 +19,10 @@
 #define SOLVING_TIME (600.0)
 // 30 meters = 1 pixel, 150km/h = 41.67m/s = 1.39pixel/s
 #define CONSTANT_VELOCITY (1.39)
+#define DOTS_FILE_PREFIX "dots_"
+#define DOTS_FILE_SUFFIX ".txt"
 #define DOTS_FILE_NAME "dots.txt"
+
 #define MAP_TIF "N46E010.tif"
 //#define MAP_TIF "sample.tif"
 
