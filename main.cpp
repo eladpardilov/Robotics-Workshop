@@ -23,8 +23,6 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	int rows;
-	int cols;
 	int * global_end_coordinates = new int[2];
 	int * end_coordinates = new int[2];
 	int max_turn_rate;

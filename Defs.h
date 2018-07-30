@@ -24,6 +24,7 @@
 #define DOTS_FILE_NAME "dots.txt"
 
 #define MAP_TIF "N46E010.tif"
+#define PI (3.1415926535897)
 //#define MAP_TIF "sample.tif"
 
 #endif /* DEFS_H_ */

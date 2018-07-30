@@ -15,6 +15,7 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/progress.hpp>
+#include "AngleDiffOptimizationObjective.h"
 
 #ifndef foreach
 #define foreach BOOST_FOREACH
@@ -192,8 +193,8 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     //else
     //    LOGG_INFO << "R-strategy with connection radius: " << connectionRadius_;
     
-    miniSetup();
-    
+    //miniSetup();
+    START_OVER:
     iterations_ = 0;
     
     bestCost_ = opt_->infiniteCost();
@@ -201,6 +202,8 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     // If milestones were not imported, generate them
     if (allMilestones_.empty())
         generateMilestones();
+    else
+        generateExtraMilestones();
     
     if (!goal)
     {
@@ -217,7 +220,7 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     unsigned long int nrStartStates = boost::num_vertices(g_);
     OMPL_INFORM("%s: Starting planning with %lu states already in datastructure", getName().c_str(), nrStartStates);
 
-    constructRoadmapVertices();
+    constructRoadmapVertices(nrStartStates);
     
     if (startM_.empty()) {
         OMPL_ERROR("%s: There are no valid initial states!", getName().c_str());
@@ -243,7 +246,14 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     
     // Search for a solution in the graph
     base::PathPtr sol;
-    maybeConstructSolution(startM_, goalM_, sol);
+    try {
+        maybeConstructSolution(startM_, goalM_, sol);
+    } catch (...) {
+        OMPL_INFORM("Couldn't find a path given the current states, adding %lu states...\n", boost::num_vertices(g_) / 10);
+        goto START_OVER;
+    }
+
+    
 
     if (sol)
     {
@@ -260,7 +270,7 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     return sol ? base::PlannerStatus::EXACT_SOLUTION : base::PlannerStatus::TIMEOUT;
 }
 
-void ompl::geometric::SimpleBatchPRM::constructRoadmapVertices() {
+void ompl::geometric::SimpleBatchPRM::constructRoadmapVertices(int current_milestones) {
 
     size_t start_milestones_index;
     size_t start_milestones_count;
@@ -284,9 +294,9 @@ void ompl::geometric::SimpleBatchPRM::constructRoadmapVertices() {
         allMilestones_.push_back(si_->cloneState(st));
     
     goal_milestones_count = allMilestones_.size() - goal_milestones_index;
-    
+
     // Build graph vertices
-    for (size_t i = 0; i < allMilestones_.size(); i++) {
+    for (size_t i = current_milestones; i < allMilestones_.size(); i++) {
         
         graphMutex_.lock();
         
@@ -337,6 +347,35 @@ void ompl::geometric::SimpleBatchPRM::generateMilestones() {
     
     si_->freeState(workState);
     
+    //LOGG_INFO << "Built milestones. total: " << allMilestones_.size();
+}
+
+void ompl::geometric::SimpleBatchPRM::generateExtraMilestones() {
+    
+    base::State *workState;
+    bool found = false;
+    
+    //LOGG_INFO << "Generating " << numMilestones_ << " milestones...";
+    
+    int new_numMilestones = numMilestones_ + (numMilestones_ / 10);
+    allMilestones_.reserve(numMilestones_ / 10);
+    
+    workState = si_->allocState();
+    
+    while (allMilestones_.size() < (size_t)(new_numMilestones)) {
+        do {
+      //      simpleSampler_->sampleUniform(workState);
+      //total_num_of_samples_++;
+      //found = (si_->isValid(workState));
+      found = sampler_->sample(workState);
+        } while (!found);
+               
+        allMilestones_.push_back(si_->cloneState(workState));
+    }
+    
+    si_->freeState(workState);
+    
+    numMilestones_ = new_numMilestones;
     //LOGG_INFO << "Built milestones. total: " << allMilestones_.size();
 }
 
@@ -443,4 +482,11 @@ void ompl::geometric::SimpleBatchPRM::getPlannerData(base::PlannerData &data) co
         data.tagState(stateProperty_[v1], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(v1));
         data.tagState(stateProperty_[v2], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(v2));
     }
+}
+
+ompl::base::OptimizationObjectivePtr ompl::geometric::SimpleBatchPRM::getBalancedObjective(const ompl::base::SpaceInformationPtr& si)
+{
+    ompl::base::OptimizationObjectivePtr lengthObj(new ompl::base::PathLengthOptimizationObjective(si));
+    ompl::base::OptimizationObjectivePtr angleObj(new ompl::base::AngleDiffOptimizationObjective(si));
+    return (0.8/10.0)*lengthObj + (0.2/360.0)*angleObj;
 }

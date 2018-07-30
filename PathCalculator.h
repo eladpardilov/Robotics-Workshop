@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/SE3StateSpace.h>
-#include <ompl/geometric/planners/prm/PRM.h>
+#include "SimpleBatchPRM.h"
 #include <ompl/base/StateValidityChecker.h>
 #include <ompl/base/MotionValidator.h>
 #include <ompl/config.h>
@@ -48,7 +48,7 @@ private:
 		bool checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const;
 		bool IsLineValid(int** line, int len) const;
 		bool CheckLineBetweenPoints(int* pos1, int* pos2) const;
-		bool CheckAngleBetweenPoints(double dist, int x1, int y1, double t1, int x2, int y2, double t2) const;
+		bool CheckAngleBetweenPoints(double dist, const ob::State *s1, const ob::State *s2) const;
 		double FindAngle(double theta, double phi) const;
 
 	};

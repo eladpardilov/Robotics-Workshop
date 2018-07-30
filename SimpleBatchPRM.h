@@ -4,6 +4,9 @@
 #include <ompl/geometric/planners/PlannerIncludes.h>
 #include "MyPRM.h"
 #include <ompl/datastructures/NearestNeighbors.h>
+#include <ompl/base/SpaceInformation.h>
+#include <ompl/base/spaces/SE3StateSpace.h>
+
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -56,11 +59,13 @@ namespace ompl
 
             virtual base::PlannerStatus solve(const base::PlannerTerminationCondition &ptc);
             
-            void constructRoadmapVertices();
+            void constructRoadmapVertices(int current_milestones);
 
             void connectRoadmap(const base::PlannerTerminationCondition &ptc);
 
             void getPlannerData(base::PlannerData &data) const override;
+
+            ompl::base::OptimizationObjectivePtr getBalancedObjective(const ompl::base::SpaceInformationPtr& si);
 
                         
            
@@ -99,6 +104,8 @@ namespace ompl
             
 	public:  // My functions
             void generateMilestones();
+
+            void generateExtraMilestones();
             
             void exportMilestones(std::vector<base::State *>& out);
             

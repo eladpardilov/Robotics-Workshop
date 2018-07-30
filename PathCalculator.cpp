@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include <stdlib.h>
-#include "SimpleBatchPRM.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -14,8 +14,6 @@ cv::Mat global_mat;
 cv::Mat funnel_mat;
 double mat_min, mat_max;
 int up_down_rate, turn_rate;
-double PI = 3.1415926535897;
-
 
 PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states)
 {
@@ -54,37 +52,47 @@ double PathCalculator::myMotionValidator::FindAngle(double theta, double phi) co
 	}
 }
 
-bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, int x1, int y1, double t1, int x2, int y2, double t2) const
+bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, const ob::State *s1, const ob::State *s2) const
 {
-	double phi; 
-	double a1;
-	double a2;
+	double angle;
 	double line_time;
 	bool res;
-
-	// The angle of the line with x axis
-	phi = atan2(y2 - y1, x2 - x1);
-	phi = ( phi >= 0 ? phi : ( 2*PI + phi ) ) * 360 / ( 2*PI );
-
-	a1 = FindAngle(t1, phi);
-	a2 = FindAngle(t2, phi);
-
-	//printf("a1 = %f, a2 = %f\n", a1, a2);
-	//printf("phi = " + (str)phi + " a1 = " + (str)a1 + " a2 = " + (str)a2 + " t = " + (str)line_time)
+	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+	// if s2 is the destination, we are close enough and the angle doesn't matter
+	
+	if (angle2->values[0] < 0) {
+		/*
+		const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+		const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+		printf("point: (%.2f,%.2f,%.2f), angle: %.2f\n", pos1->values[0],pos1->values[1],pos1->values[2], angle1->values[0]);
+		*/
+		return true;
+	}
+	
+    Utils * utils = new Utils();
+    angle = utils->GetTotalAngle(s1, s2);
+    delete utils;
 
 	line_time = dist / CONSTANT_VELOCITY;
 
-
-	if (((a1 + a2) / line_time) > double(turn_rate))
-	{
+	if ((angle / line_time) > double(turn_rate))
 		res = false;
-	}
-	else
-	{
+	else {
 		res = true;
+		/*
+		double phi;
+			const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+		    const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+		    const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+	    	phi = atan2(pos2->values[1] - pos1->values[1], pos2->values[0] - pos1->values[0]); // getting the angle in PI units
+			phi = (( phi >= 0 ? phi : ( 2*PI + phi ) ) * 360 / ( 2*PI ));
+			printf("PHI: %.2f\n",phi);
+		    printf("point1: (%.2f,%.2f,%.2f), angle: %.2f\n", pos1->values[0],pos1->values[1],pos1->values[2], angle1->values[0]);
+		    printf("point2: (%.2f,%.2f,%.2f), angle: %.2f\n", pos2->values[0],pos2->values[1],pos2->values[2], angle2->values[0]);
+
+		printf("(angle / line_time) = %.2f/%.2f = %.2f <= %.2f  = turn_rate\n", angle, line_time, angle/line_time, (double)turn_rate); */
 	}
 
-	//printf("phi =  %f,  a1 = %f, a2 = %f, t = %f, res = %d\n", phi, a1, a2, line_time, res);
 	return res;
 }
 
@@ -97,6 +105,7 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	int i, x, y, z;
 	int mx, my, mz;
 	double vertical_velocity, motion_time, horiz_dist;
+	bool res;
 
 	if (pos1[0] < pos2[0])
 	{
@@ -221,7 +230,13 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	goto CHECK_VALIDITY;
 
 	CHECK_VALIDITY:
-	return IsLineValid(result, line_len);
+	res = IsLineValid(result, line_len);
+
+	for(i = 0 ; i < line_len ; i++)
+		delete[] result[i];
+	delete[] result;
+
+	return res;
 
 }
 
@@ -239,8 +254,7 @@ bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
 		{
 			//printf("x = %d, y = %d, z = %d z_map = %f\n", int(round(line[i][0])), int(round(line[i][1])), line[i][2], global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))));
 			return false;
-		}
-		
+		}		
 	}
 	return true;
 }
@@ -249,32 +263,26 @@ bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2) const
 {
 	const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-	const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 	const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 	bool res;
-
 	bool isLine;
 	bool isAngle;
-	
-	double x = pos1->values[0] - pos2->values[0];
-	double y = pos1->values[1] - pos2->values[1];
-	double z = pos1->values[2] - pos2->values[2];
 	double dist;
-
-	dist = x*x + y*y + z*z;
-	dist = sqrt(dist);
+	int* pos1_arr = new int[3];
+	int* pos2_arr = new int[3];
+    Utils * utils = new Utils();
+    dist = utils->GetEuclidDistance(s1, s2);
+    delete utils;
+	
 	if (dist > MAX_DISTANCE_FOR_STEP)
 	{
 		return false;
 	}
 
-	int* pos1_arr = new int[3];
 	pos1_arr[0] = int(round(pos1->values[0]));
 	pos1_arr[1] = int(round(pos1->values[1]));
 	pos1_arr[2] = int(round(pos1->values[2]));
 
-	int* pos2_arr = new int[3];
 	pos2_arr[0] = int(round(pos2->values[0]));
 	pos2_arr[1] = int(round(pos2->values[1]));
 	pos2_arr[2] = int(round(pos2->values[2]));
@@ -288,7 +296,7 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 
 	//int numPoints = sizeof(checkPoints)/sizeof(checkPoints[0]);
 	isLine = CheckLineBetweenPoints(pos1_arr, pos2_arr);
-	isAngle = CheckAngleBetweenPoints(dist, pos1_arr[0], pos1_arr[1], angle1->values[0], pos2_arr[0], pos2_arr[1], angle2->values[0]);
+	isAngle = CheckAngleBetweenPoints(dist, s1, s2);
 
 	res = (isLine && isAngle);
 /*
@@ -302,6 +310,10 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	}
 	else
 		printf("Doesn't Exist\n"); */
+
+	delete[] pos1_arr;
+	delete[] pos2_arr;
+
 	return (res);
 
 //	global_mat.at<int>(x_int, y_int)
@@ -309,7 +321,7 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	//return (dist < MAX_DISTANCE_FOR_STEP);
 }
 
-bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  std::pair<ob::State *, double> &lastValid) const
+bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  __attribute__((unused)) std::pair<ob::State *, double> &lastValid) const
 {
 	return checkMotion(s1, s2);
 }
@@ -455,7 +467,7 @@ void PathCalculator::PlanRoute()
 	auto si(std::make_shared<ob::SpaceInformation>(space));
 	// set state validity checking for this space
 	si->setStateValidityChecker(isStateValid);
-	si->setStateValidityCheckingResolution(0.03);
+	//si->setStateValidityCheckingResolution(0.03);
 	si->setValidStateSamplerAllocator(allocMyValidStateSampler);
 	si->setMotionValidator(std::make_shared<myMotionValidator>(si));
 	si->setup();
@@ -478,21 +490,22 @@ void PathCalculator::PlanRoute()
 	goal_arr[0] = int(goal[0]);
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
-	
+	int cnt = 0;
 	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
 	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::RealVectorStateSpace> start(space);
 		start[0] = MAP_SIZE/2 + radius * cos(angle);
 		start[1] = MAP_SIZE/2 + radius * sin(angle);
 		start[3] = (int)(360 * angle / (2 * PI) + 180) % 360;
-		start[0] = 0.01;
-		start[1] = 20;
+	//	start[0] = 0.01;
+	//	start[1] = 20;
 		start[2] = mat_max;
-		printf("point start: (%.2f,%.2f,%.2f)\n", start[0],start[1],start[2]);
+		printf("point start: (%.2f,%.2f,%.2f), angle: %.2f\n", start[0],start[1],start[2], start[3]);
 
 		auto pdef(std::make_shared<ob::ProblemDefinition>(si));
 		// set the start and goal states
 		pdef->setStartAndGoalStates(start, goal);
+		pdef->setOptimizationObjective(planner->getBalancedObjective(si));
 		// set the problem we are trying to solve for the planner
 		planner->setProblemDefinition(pdef);
 		// perform setup steps for the planner
@@ -503,6 +516,8 @@ void PathCalculator::PlanRoute()
 		// pdef->print(std::cout);
 
 		// attempt to solve the problem within ten seconds of planning time
+		if (cnt == 0)
+			planner->miniSetup();
 		ob::PlannerStatus solved = planner->ob::Planner::solve(SOLVING_TIME);
 		if (solved)
 		{
@@ -529,10 +544,11 @@ void PathCalculator::PlanRoute()
 		}
 		else
 			std::cout << "No solution found" << std::endl;
+		cnt++;
 	
 	}
 	// start->rotation().setIdentity();
-	free(goal_arr);
+	delete[] goal_arr;
 }
 
 
