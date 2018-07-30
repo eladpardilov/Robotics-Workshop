@@ -26,7 +26,7 @@ namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
 extern cv::Mat global_mat;
-
+extern double mat_min, mat_max;
 
 class PathCalculator
 {
@@ -59,7 +59,7 @@ public:
 	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
-	void Show();
+	void finish();
 	
 	int rows;
 	int cols;

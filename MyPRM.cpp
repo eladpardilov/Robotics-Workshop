@@ -47,7 +47,7 @@
 #include <boost/foreach.hpp>
 #include <thread>
 
-#include "/home/local/ANT/elpardil/ompl/ompl/src/ompl/geometric/planners/prm/src/GoalVisitor.hpp"
+#include "ompl/geometric/planners/prm/GoalVisitor.hpp"
 
 #define foreach BOOST_FOREACH
 

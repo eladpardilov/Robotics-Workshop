@@ -1,8 +1,9 @@
 /*********** Includes ***********/
 #include <iostream>
 #include <string>
-#include "PathCalculator.h"
 #include "Defs.h"
+#include "PathCalculator.h"
+#include "PostProcessor.h"
 #include <fstream>
 /*
 #include <opencv2/core/core.hpp>
@@ -89,7 +90,10 @@ int main(int argc, char **argv)
 
 	path.PlanRoute();
 	
-	path.Show();
+	path.finish();
+
+	PostProcessor post(end_coordinates);
+	post.Show();
 	
 
     // for(int i = 0; i < MAP_SIZE; ++i) {
