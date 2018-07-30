@@ -29,6 +29,7 @@ int main(int argc, char **argv)
 	int max_turn_rate;
 	int max_up_down_rate;
 	int radius;
+	int num_states;
 	cv::Mat src_image, image, image2;
 
 
@@ -39,12 +40,14 @@ int main(int argc, char **argv)
 		max_turn_rate = 45; // angle per second
 		max_up_down_rate = 100; // meters per minute
 		radius = 5000/30;
+		num_states = 10000;
 	} else {
 		// Parse Arguments
 		global_end_coordinates[0] = atoi(argv[1]);
 		global_end_coordinates[1] = atoi(argv[2]);
 		max_turn_rate = atoi(argv[3]);
 		max_up_down_rate = atoi(argv[4]);
+		num_states = atoi(argv[5]);
 		radius = 5000/30;
 	}
 	
@@ -82,7 +85,7 @@ int main(int argc, char **argv)
 	}*/
 
 	// Create object for the PathCalculator
-	PathCalculator path(image, end_coordinates, max_turn_rate, max_up_down_rate, radius);
+	PathCalculator path(image, end_coordinates, max_turn_rate, max_up_down_rate, radius, num_states);
 
 	path.PlanRoute();
 	

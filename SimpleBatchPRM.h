@@ -2,7 +2,7 @@
 #define OMPL_GEOMETRIC_PLANNERS_SIMPLE_BATCH_PRM_
 
 #include <ompl/geometric/planners/PlannerIncludes.h>
-#include <ompl/geometric/planners/prm/PRM.h>
+#include "MyPRM.h"
 #include <ompl/datastructures/NearestNeighbors.h>
 
 #include <boost/graph/graph_traits.hpp>
@@ -29,7 +29,7 @@ namespace ompl
     {
 
         /** \brief Probabilistic RoadMap planner for Aviel's experiments */
-        class SimpleBatchPRM : public PRM
+        class SimpleBatchPRM : public MyPRM
         {
         public:
 
@@ -59,6 +59,9 @@ namespace ompl
             void constructRoadmapVertices();
 
             void connectRoadmap(const base::PlannerTerminationCondition &ptc);
+
+            void getPlannerData(base::PlannerData &data) const override;
+
                         
            
 	public:

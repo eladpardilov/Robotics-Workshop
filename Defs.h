@@ -16,7 +16,7 @@
 #define MAX_DISTANCE_FOR_STEP (10)
 #define NUM_POINTS_AROUND_CENTER (12)
 #define Z_AXIS_DIV_FACTOR (30.0)
-#define SOLVING_TIME (15.0)
+#define SOLVING_TIME (600.0)
 // 30 meters = 1 pixel, 150km/h = 41.67m/s = 1.39pixel/s
 #define CONSTANT_VELOCITY (1.39)
 #define DOTS_FILE_NAME "dots.txt"

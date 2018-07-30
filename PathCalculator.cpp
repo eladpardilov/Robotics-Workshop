@@ -17,7 +17,7 @@ int up_down_rate, turn_rate;
 double PI = 3.1415926535897;
 
 
-PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius)
+PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states)
 {
 	this->mat = mat;
 	global_mat = mat;
@@ -26,6 +26,7 @@ PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate,
 	this->max_turn_rate = max_turn_rate;
 	this->max_up_down_rate = max_up_down_rate;
 	this->radius = radius;
+	this->num_states = num_states;
 	cv::Size size = global_mat.size();
 	turn_rate = max_turn_rate;
 	up_down_rate = max_up_down_rate;
@@ -128,7 +129,7 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	if (start_x == end_x && start_y == end_y && start_z == end_z)
 	{
 		// NULL
-		goto CHECK_VALIDITY;
+		return true;
 		
 		//return result;
 	}
@@ -250,6 +251,7 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 	const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
 	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
+	bool res;
 
 	bool isLine;
 	bool isAngle;
@@ -287,7 +289,19 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	isLine = CheckLineBetweenPoints(pos1_arr, pos2_arr);
 	isAngle = CheckAngleBetweenPoints(dist, pos1_arr[0], pos1_arr[1], angle1->values[0], pos2_arr[0], pos2_arr[1], angle2->values[0]);
 
-	return (isLine && isAngle);
+	res = (isLine && isAngle);
+/*
+	if (res) {
+		if (!(x == 0 && y == 0 && z == 0)) {
+			printf("Point1: %f,%f,%f, Angle:%f\nPoint2: %f,%f,%f, Angle:%f\n",
+			pos1->values[0],pos1->values[1],pos1->values[2],angle1->values[0],
+			pos2->values[0],pos2->values[1],pos2->values[2],angle2->values[0]);
+			printf("Exists\n");
+		}
+	}
+	else
+		printf("Doesn't Exist\n"); */
+	return (res);
 
 //	global_mat.at<int>(x_int, y_int)
 
@@ -445,9 +459,8 @@ void PathCalculator::PlanRoute()
 
 	// create a planner for the defined space
 	auto planner(std::make_shared<og::SimpleBatchPRM>(si, true));
-	planner->setNumMilestones(50000);
+	planner->setNumMilestones(this->num_states);
 	ob::ScopedState<ob::SE3StateSpace> goal(space);
-
 	goal[0] = coordinates[0];
 	goal[1] = coordinates[1];
 	goal[2] = global_mat.at<float>(goal[1],goal[0]);
@@ -455,6 +468,7 @@ void PathCalculator::PlanRoute()
 	goal[3] = -1;
 	printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
 	// goal->rotation().setIdentity();
+	//planner->setConnectionStrategyType("K");
 	planner->setup();
 
 	// Calc the funnel area of the points generator

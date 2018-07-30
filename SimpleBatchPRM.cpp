@@ -33,7 +33,7 @@ namespace ompl
 
 
 ompl::geometric::SimpleBatchPRM::SimpleBatchPRM(const base::SpaceInformationPtr &si, bool starStrategy) :
-    ompl::geometric::PRM(si, starStrategy),
+    ompl::geometric::MyPRM(si, starStrategy),
     useKNearest_(true),
     numNeighbors_(magic::DEFAULT_NEAREST_NEIGHBORS),
     total_num_of_samples_(0),
@@ -139,7 +139,7 @@ void ompl::geometric::SimpleBatchPRM::connectRoadmap(const base::PlannerTerminat
         currentVertexIndex_++;
         ++show_progress;
 
-	const std::vector<Vertex>& neighbors = connectionStrategy_(m);
+        const std::vector<Vertex>& neighbors = connectionStrategy_(m);
         
         foreach (Vertex n, neighbors) {
             
@@ -158,7 +158,6 @@ void ompl::geometric::SimpleBatchPRM::connectRoadmap(const base::PlannerTerminat
 	      const base::Cost weight = opt_->motionCost(stateProperty_[m], stateProperty_[n]);
 	      const Graph::edge_property_type properties(weight);
 	      boost::add_edge(m, n, properties, g_);
-	      uniteComponents(m, n);
 	    }   
 	}
     }
@@ -415,4 +414,33 @@ double  ompl::geometric::SimpleBatchPRM::estimateCspaceRelativeVolume(std::size_
 
   return double(free) / double(n);
 
+}
+
+void ompl::geometric::SimpleBatchPRM::getPlannerData(base::PlannerData &data) const
+{
+    Planner::getPlannerData(data);
+
+    // Explicitly add start and goal states:
+    for (unsigned long i : startM_)
+        data.addStartVertex(
+            base::PlannerDataVertex(stateProperty_[i], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(i)));
+
+    for (unsigned long i : goalM_)
+        data.addGoalVertex(
+            base::PlannerDataVertex(stateProperty_[i], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(i)));
+
+    // Adding edges and all other vertices simultaneously
+    foreach (const Edge e, boost::edges(g_))
+    {
+        const Vertex v1 = boost::source(e, g_);
+        const Vertex v2 = boost::target(e, g_);
+        data.addEdge(base::PlannerDataVertex(stateProperty_[v1]), base::PlannerDataVertex(stateProperty_[v2]));
+
+        // Add the reverse edge, since we're constructing an undirected roadmap
+//        data.addEdge(base::PlannerDataVertex(stateProperty_[v2]), base::PlannerDataVertex(stateProperty_[v1]));
+
+        // Add tags for the newly added vertices
+        data.tagState(stateProperty_[v1], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(v1));
+        data.tagState(stateProperty_[v2], const_cast<SimpleBatchPRM *>(this)->disjointSets_.find_set(v2));
+    }
 }

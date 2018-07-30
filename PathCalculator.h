@@ -36,6 +36,7 @@ private:
 	double max_turn_rate;
 	int max_up_down_rate;
 	int radius;
+	int num_states;
 	ob::PathPtr thePath;
 	
 	class myMotionValidator : public ob::MotionValidator
@@ -55,7 +56,7 @@ private:
 	void calcFunnel(int* goal);
 
 public:
-	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius);
+	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void Show();

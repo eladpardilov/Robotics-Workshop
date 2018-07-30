@@ -1,226 +1,150 @@
-Geometric path with 56 states
+Geometric path with 37 states
 Compound state [
-RealVectorState [0.01 20 105]
+RealVectorState [0.01 20 108.633]
 RealVectorState [45]
 ]
 Compound state [
-RealVectorState [8.14423 23.9889 105]
-RealVectorState [57.5778]
+RealVectorState [4.26168 24.3392 108.633]
+RealVectorState [321.45]
 ]
 Compound state [
-RealVectorState [10.1306 27.2777 105]
-RealVectorState [34.1739]
+RealVectorState [12.1431 28.0628 108.633]
+RealVectorState [329.393]
 ]
 Compound state [
-RealVectorState [13.8653 30.2455 105]
-RealVectorState [34.1462]
+RealVectorState [16.2858 30.0853 108.633]
+RealVectorState [27.1508]
 ]
 Compound state [
-RealVectorState [16.318 34.1141 105]
-RealVectorState [97.2881]
+RealVectorState [18.2655 37.9526 108.633]
+RealVectorState [26.172]
 ]
 Compound state [
-RealVectorState [13.9265 37.559 105]
-RealVectorState [123.854]
+RealVectorState [26.345 42.9473 108.633]
+RealVectorState [97.5698]
 ]
 Compound state [
-RealVectorState [14.0467 42.4952 105]
-RealVectorState [65.437]
+RealVectorState [23.4485 46.8645 108.633]
+RealVectorState [122.919]
 ]
 Compound state [
-RealVectorState [17.6618 46.0547 105]
-RealVectorState [18.9147]
+RealVectorState [25.4327 55.1954 108.633]
+RealVectorState [88.6335]
 ]
 Compound state [
-RealVectorState [20.5764 50.0878 105]
-RealVectorState [63.7074]
+RealVectorState [33.7126 59.8477 108.633]
+RealVectorState [8.12914]
 ]
 Compound state [
-RealVectorState [21.9027 54.3383 105]
-RealVectorState [121.161]
+RealVectorState [40.3554 62.899 108.633]
+RealVectorState [62.1913]
 ]
 Compound state [
-RealVectorState [24.6404 58.7912 105]
-RealVectorState [49.4365]
+RealVectorState [47.4079 65.8392 108.633]
+RealVectorState [15.282]
 ]
 Compound state [
-RealVectorState [26.1698 61.4828 105]
-RealVectorState [43.5801]
+RealVectorState [51.7719 67.8529 108.633]
+RealVectorState [346.121]
 ]
 Compound state [
-RealVectorState [29.3554 65.1498 105]
-RealVectorState [23.07]
+RealVectorState [61.1993 69.7578 108.477]
+RealVectorState [74.997]
 ]
 Compound state [
-RealVectorState [32.603 66.6371 105]
-RealVectorState [355.537]
+RealVectorState [63.6258 72.281 108.281]
+RealVectorState [37.1856]
 ]
 Compound state [
-RealVectorState [37.0427 68.3121 105]
-RealVectorState [53.3867]
+RealVectorState [72.2017 76.2479 107.675]
+RealVectorState [90.8122]
 ]
 Compound state [
-RealVectorState [41.3826 72.1765 105]
-RealVectorState [29.9639]
+RealVectorState [69.7206 83.8289 108.126]
+RealVectorState [32.604]
 ]
 Compound state [
-RealVectorState [45.6734 76.2241 105]
-RealVectorState [357.59]
+RealVectorState [74.2896 91.5419 107.681]
+RealVectorState [23.4435]
 ]
 Compound state [
-RealVectorState [49.2184 79.6634 104.98]
-RealVectorState [49.9571]
+RealVectorState [82.0838 97.2111 107.611]
+RealVectorState [125.601]
 ]
 Compound state [
-RealVectorState [50.8564 84.3267 104.816]
-RealVectorState [39.0798]
+RealVectorState [85.8709 106.427 107.545]
+RealVectorState [104.515]
 ]
 Compound state [
-RealVectorState [53.4589 85.1318 104.321]
-RealVectorState [0.533092]
+RealVectorState [90.8377 110.618 105.369]
+RealVectorState [24.4009]
 ]
 Compound state [
-RealVectorState [57.1742 86.9221 103.628]
-RealVectorState [51.2178]
+RealVectorState [97.8737 113.962 106.43]
+RealVectorState [317.625]
 ]
 Compound state [
-RealVectorState [58.4327 88.2334 103.199]
-RealVectorState [29.4911]
+RealVectorState [106.205 116.003 107.296]
+RealVectorState [73.4143]
 ]
 Compound state [
-RealVectorState [60.2186 92.7082 102.669]
-RealVectorState [51.4621]
+RealVectorState [114.259 121.211 105.227]
+RealVectorState [39.8782]
 ]
 Compound state [
-RealVectorState [62.3828 95.7465 101.893]
-RealVectorState [45.1398]
+RealVectorState [122.147 126.065 105.672]
+RealVectorState [12.6443]
 ]
 Compound state [
-RealVectorState [66.2295 99.7142 101.437]
-RealVectorState [40.4278]
+RealVectorState [130.712 130.045 106.745]
+RealVectorState [358.699]
 ]
 Compound state [
-RealVectorState [70.4973 102.428 101.731]
-RealVectorState [82.1387]
+RealVectorState [134.572 137.657 103.274]
+RealVectorState [104.246]
 ]
 Compound state [
-RealVectorState [72.4175 105.286 103.532]
-RealVectorState [62.8914]
+RealVectorState [137.418 143.631 106.371]
+RealVectorState [19.5604]
 ]
 Compound state [
-RealVectorState [75.9963 109.169 103.73]
-RealVectorState [49.3685]
+RealVectorState [138.401 149.788 104.385]
+RealVectorState [78.6765]
 ]
 Compound state [
-RealVectorState [78.8056 113.523 102.384]
-RealVectorState [115.525]
+RealVectorState [146.651 152.373 107.977]
+RealVectorState [34.5311]
 ]
 Compound state [
-RealVectorState [83.4294 115.486 100.14]
-RealVectorState [193.428]
+RealVectorState [152.717 154.977 105.44]
+RealVectorState [113.155]
 ]
 Compound state [
-RealVectorState [88.2755 117.551 103.101]
-RealVectorState [260.785]
+RealVectorState [161.827 157.267 105.312]
+RealVectorState [10.3183]
 ]
 Compound state [
-RealVectorState [92.6409 120.47 100.889]
-RealVectorState [195.969]
+RealVectorState [166.308 156.237 106.869]
+RealVectorState [329.798]
 ]
 Compound state [
-RealVectorState [96.4681 125.804 99.7667]
-RealVectorState [230.53]
+RealVectorState [172.152 159.002 101.249]
+RealVectorState [11.7584]
 ]
 Compound state [
-RealVectorState [98.983 131.024 100.371]
-RealVectorState [245.92]
+RealVectorState [175.524 159.709 103.179]
+RealVectorState [58.6961]
 ]
 Compound state [
-RealVectorState [103.259 132.842 99.1761]
-RealVectorState [209.415]
+RealVectorState [178.519 167.649 105.229]
+RealVectorState [14.1568]
 ]
 Compound state [
-RealVectorState [108.517 133.388 95.6552]
-RealVectorState [231.54]
+RealVectorState [177.338 177.366 104.035]
+RealVectorState [58.3121]
 ]
 Compound state [
-RealVectorState [110.691 134.665 99.5858]
-RealVectorState [206.229]
-]
-Compound state [
-RealVectorState [115.033 139.162 99.5271]
-RealVectorState [251.528]
-]
-Compound state [
-RealVectorState [119.221 140.538 101.541]
-RealVectorState [229.173]
-]
-Compound state [
-RealVectorState [120.513 145.838 102.535]
-RealVectorState [196.139]
-]
-Compound state [
-RealVectorState [123.747 150.082 100.9]
-RealVectorState [269.897]
-]
-Compound state [
-RealVectorState [125.496 156.239 100.211]
-RealVectorState [237.696]
-]
-Compound state [
-RealVectorState [128.855 159.578 99.069]
-RealVectorState [196.908]
-]
-Compound state [
-RealVectorState [133.434 161.389 102.463]
-RealVectorState [162.034]
-]
-Compound state [
-RealVectorState [137.66 162.299 103.307]
-RealVectorState [165.012]
-]
-Compound state [
-RealVectorState [142.088 166.452 100.746]
-RealVectorState [223.144]
-]
-Compound state [
-RealVectorState [143.814 167.874 99.4586]
-RealVectorState [197.809]
-]
-Compound state [
-RealVectorState [148.865 169.485 97.1292]
-RealVectorState [187.645]
-]
-Compound state [
-RealVectorState [153.625 169.613 95.0164]
-RealVectorState [246.197]
-]
-Compound state [
-RealVectorState [158.654 172.587 94.7483]
-RealVectorState [243.454]
-]
-Compound state [
-RealVectorState [162.125 176.062 90.461]
-RealVectorState [248.817]
-]
-Compound state [
-RealVectorState [166.866 176.946 87.7958]
-RealVectorState [211.889]
-]
-Compound state [
-RealVectorState [169.945 178.492 87.0293]
-RealVectorState [235.072]
-]
-Compound state [
-RealVectorState [173.867 182.917 84.2437]
-RealVectorState [198.402]
-]
-Compound state [
-RealVectorState [179.189 185.05 79.9049]
-RealVectorState [272.463]
-]
-Compound state [
-RealVectorState [180 180 76.5]
+RealVectorState [180 180 98.1333]
 RealVectorState [-1]
 ]
 
