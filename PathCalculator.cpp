@@ -491,12 +491,12 @@ void PathCalculator::PlanRoute()
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
 	int cnt = 0;
-	//for (double angle=0; angle<=2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
-	for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
+	for (double angle=0; angle<2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
+	//for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::RealVectorStateSpace> start(space);
 		start[0] = MAP_SIZE/2 + radius * cos(angle);
 		start[1] = MAP_SIZE/2 + radius * sin(angle);
-		start[3] = (int)(360 * angle / (2 * PI) + 180) % 360;
+		start[3] = (int)round((360 * angle / (2 * PI) + 180)) % 360;
 	//	start[0] = 0.01;
 	//	start[1] = 20;
 		start[2] = mat_max;
@@ -518,6 +518,7 @@ void PathCalculator::PlanRoute()
 		// attempt to solve the problem within ten seconds of planning time
 		if (cnt == 0)
 			planner->miniSetup();
+
 		ob::PlannerStatus solved = planner->ob::Planner::solve(SOLVING_TIME);
 		if (solved)
 		{
@@ -533,7 +534,7 @@ void PathCalculator::PlanRoute()
 			std::ofstream fout;
 
 			sprintf(file_name, "dots_%d.txt", this->output_index);
-			this->output_index = this->output_index + 1; 
+			this->output_index++;
 			fout.open(file_name, std::ios::out | std::ios::trunc);
 			//fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
 			if(!fout)

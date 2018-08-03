@@ -194,6 +194,8 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     //    LOGG_INFO << "R-strategy with connection radius: " << connectionRadius_;
     
     //miniSetup();
+    int cnt = 0;
+
     START_OVER:
     iterations_ = 0;
     
@@ -202,7 +204,7 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     // If milestones were not imported, generate them
     if (allMilestones_.empty())
         generateMilestones();
-    else
+    else if (cnt > 0)
         generateExtraMilestones();
     
     if (!goal)
@@ -250,6 +252,7 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
         maybeConstructSolution(startM_, goalM_, sol);
     } catch (...) {
         OMPL_INFORM("Couldn't find a path given the current states, adding %lu states...\n", boost::num_vertices(g_) / 10);
+        cnt++;
         goto START_OVER;
     }
 
