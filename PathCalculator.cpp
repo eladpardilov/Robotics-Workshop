@@ -491,7 +491,7 @@ void PathCalculator::PlanRoute()
 	goal_arr[1] = int(goal[1]);
 	calcFunnel(goal_arr);
 	int cnt = 0;
-	for (double angle=0; angle<2*PI; angle+=2*PI/NUM_POINTS_AROUND_CENTER) {
+	for (double angle = 0; angle < 2*PI - EPSILON; angle += 2*PI/NUM_POINTS_AROUND_CENTER) {
 	//for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::RealVectorStateSpace> start(space);
 		start[0] = MAP_SIZE/2 + radius * cos(angle);

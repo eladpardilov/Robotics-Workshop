@@ -22,7 +22,7 @@
 #define DOTS_FILE_PREFIX "dots_"
 #define DOTS_FILE_SUFFIX ".txt"
 #define DOTS_FILE_NAME "dots.txt"
-
+#define EPSILON (0.000001)
 #define MAP_TIF "N46E010.tif"
 #define PI (3.1415926535897)
 //#define MAP_TIF "sample.tif"
