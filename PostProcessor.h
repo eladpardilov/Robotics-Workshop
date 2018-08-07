@@ -25,12 +25,17 @@ private:
 	int rows;
 	int cols;
 	int output_index;
+	int FindPathByPercentage(double euc_percent, double angle_percent, bool is_lowest);
 
 	
 public:
 	PostProcessor(int* coordinates);
 	void Show();
-
+	void ShowOnePath(int path_index);
+	int FindBestPath();
+	int FindSafestPath();
+	int FindFastestPath();
+	int FindLowestPath();
 };
 
 #endif /* POSTPROCESSOR_H_ */

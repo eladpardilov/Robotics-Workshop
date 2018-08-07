@@ -91,7 +91,25 @@ int main(int argc, char **argv)
 	path.finish();
 
 	PostProcessor post(end_coordinates);
-	post.Show();
+	
+	int best_index = post.FindBestPath();
+	printf("Best path index: %d\n",best_index);
+	post.ShowOnePath(best_index);
+
+	int safe_index = post.FindSafestPath();
+	printf("Safest path index: %d\n",safe_index);
+	post.ShowOnePath(safe_index);
+
+	int fast_index = post.FindFastestPath();
+	printf("Fastest path index: %d\n",fast_index);
+	post.ShowOnePath(fast_index);
+	
+	int low_index = post.FindLowestPath();
+	printf("Lowest path index: %d\n",low_index);
+	post.ShowOnePath(low_index);
+
+
+	//post.Show();
 	
 
     // for(int i = 0; i < MAP_SIZE; ++i) {
