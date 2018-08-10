@@ -1,5 +1,5 @@
 #include "SimpleBatchPRM.h"
-//#include <logger.h>
+#include "Defs.h"
 
 #include <ompl/geometric/planners/prm/ConnectionStrategy.h>
 #include <ompl/base/goals/GoalSampleableRegion.h>
@@ -253,6 +253,10 @@ ompl::base::PlannerStatus ompl::geometric::SimpleBatchPRM::solve(const base::Pla
     } catch (...) {
         OMPL_INFORM("Couldn't find a path given the current states, adding %lu states...\n", boost::num_vertices(g_) / 10);
         cnt++;
+        if (cnt > MAX_PRM_TRIALS) {
+            OMPL_INFORM("Couldn't find a path!\n");
+            return base::PlannerStatus::TIMEOUT;
+        }
         goto START_OVER;
     }
 

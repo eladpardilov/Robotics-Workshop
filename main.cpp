@@ -30,14 +30,14 @@ int main(int argc, char **argv)
 	int radius;
 	int num_states;
 	cv::Mat src_image, image, image2;
-
+	char gm_tiff[19];
 
 	if (argc < 2) {
 		printf("Ignoring input params...\n");
 		global_end_coordinates[0] = 230;
 		global_end_coordinates[1] = 350;
 		max_turn_rate = 45; // angle per second
-		max_up_down_rate = 100; // meters per minute
+		max_up_down_rate = 100 / Z_AXIS_DIV_FACTOR; // meters per second
 		radius = 5000/30;
 		num_states = 10000;
 	} else {
@@ -74,6 +74,8 @@ int main(int argc, char **argv)
 	image2 = src_image(region_of_interest);
 
 	image = image2 / Z_AXIS_DIV_FACTOR;
+	sprintf(gm_tiff, "roi_%d_%d.tif", global_end_coordinates[0], global_end_coordinates[1]);
+	cv::imwrite(gm_tiff,  image2);
 /*
 	printf("Map size is %d X %d, map overview: (point every 10 coordinates):\n", MAP_SIZE, MAP_SIZE);
 	for(int y=0; y < MAP_SIZE; y+=10){
@@ -84,6 +86,7 @@ int main(int argc, char **argv)
 	}*/
 
 	// Create object for the PathCalculator
+	image += (30 / Z_AXIS_DIV_FACTOR);
 	PathCalculator path(image, end_coordinates, max_turn_rate, max_up_down_rate, radius, num_states);
 
 	path.PlanRoute();

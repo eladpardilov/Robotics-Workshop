@@ -30,8 +30,7 @@ PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate,
 	up_down_rate = max_up_down_rate;
 	rows = size.height;
 	cols = size.width;
-	this->output_index = 0;
-	
+	this->output_index = 0;	
 }
 
 PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationPtr &si) : ob::MotionValidator(si) {
@@ -144,10 +143,17 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 		//return result;
 	}
 
+
+	if (start_z < end_z)
+		end_z = start_z;
+	else
+		start_z = end_z;
+	mz = 0;
+
 	// Only one axis changes
 	if (start_x == end_x && start_y == end_y)
 	{
-		line_len = abs(end_x - start_x - 1); // Doens't include the start and end points
+		line_len = abs(end_z - start_z - 1); // Doens't include the start and end points
 		result = new int*[line_len];
 		for (z = 0 ; z < line_len ; z++)
 		{
@@ -528,7 +534,7 @@ void PathCalculator::PlanRoute()
 			std::cout << "Found solution:" << std::endl;
 
 			// print the path to screen
-			std::cout << "path- begin" << std::endl;
+			std::cout << "path - begin" << std::endl;
 			thePath->print(std::cout);
 
 			std::ofstream fout;
@@ -541,7 +547,7 @@ void PathCalculator::PlanRoute()
 				std::cout << "Error opening file" << std::endl;
 			thePath->print(fout);
 			fout.close();
-			std::cout << "path- end" << std::endl;
+			std::cout << "path - end" << std::endl;
 		}
 		else
 			std::cout << "No solution found" << std::endl;
