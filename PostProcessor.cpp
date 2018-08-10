@@ -20,26 +20,20 @@ PostProcessor::PostProcessor(int* coordinates)
 
 int PostProcessor::FindBestPath()
 {
-	return FindPathByPercentage(0.8, 0.2, false);
+	return FindPathByPercentage(0.8, 0.2);
 }
 
 int PostProcessor::FindFastestPath()
 {
-	return FindPathByPercentage(1, 0, false);
+	return FindPathByPercentage(1, 0);
 }
 
 int PostProcessor::FindSafestPath()
 {
-	return FindPathByPercentage(0, 1, false);
+	return FindPathByPercentage(0, 1);
 }
 
-int PostProcessor::FindLowestPath()
-{
-	return FindPathByPercentage(0, 0, true);
-}
-
-
-int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent, bool is_lowest)
+int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent)
 {
 	Utils utils_obj;
 	FILE * readFile;
@@ -71,15 +65,9 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 		fscanf(readFile,  "RealVectorState [%f]\n", &t2);
 		fscanf(readFile, "]\n");
 
-		if (is_lowest == true)
-		{
-			path_cost = z1 + z2;
-		}
-		else
-		{
-			line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
-			path_cost = path_cost + line_cost; 
-		}
+		line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
+		path_cost = path_cost + line_cost; 
+
 
 		//printf(" Path num %d, num points %d\n", path_index, numOfPoints);
 		// Go over the rest of the path
@@ -96,18 +84,10 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 			fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
 			fscanf(readFile,  "RealVectorState [%f]\n", &t2);
 			fscanf(readFile, "]\n");
-			
-			if (is_lowest == true)
-			{
-				path_cost = path_cost + z2;
-			}
-			else
-			{
-				line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
-				//printf("auc =  %f, angle = %f, line = %f",utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2), utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2), line_cost);
-				path_cost = path_cost + line_cost;
-			}
- 
+
+			line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
+			//printf("auc =  %f, angle = %f, line = %f",utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2), utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2), line_cost);
+			path_cost = path_cost + line_cost; 
 		}
 
 		// Check if this is the best path so far
@@ -131,28 +111,33 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 
 } 
 
-void PostProcessor::ShowOnePath(int path_index)
+void PostProcessor::PrepareOnePath(int path_index, const char* path_type)
 {
 	float x1, y1, z1, x2,y2,z2, temp;
 	int numOfPoints;
 	float colorFactor;
-	char file_name[11];
+	char file_name[12];
+	char gm_file_name[18];
+	char img_file_name[13];
+
+	sprintf(gm_file_name, "gm_input_%s.txt", path_type);
+	sprintf(img_file_name, "img_%s.jpg", path_type);
 
 	cout << "min,max: " << mat_min << " " << mat_max << endl;
 	cout << "type: " << global_mat.type() << endl;
 	
 	cv::namedWindow( "Our Plane Path", cv::WINDOW_AUTOSIZE );
 	
-	//for(auto state : states_)
-	//	cout << state->components[0] << endl;
-	
+
 	cv::Mat normalized_img;
 	
 	global_mat.convertTo(normalized_img, CV_8U, 255.0f/(mat_max - mat_min), (-mat_min * 255.0f)/(mat_max - mat_min));
 
 	//reading from the "path->print()" file
 	FILE * readFile;
+	FILE * gmFile;
 	//for (; this->output_index < NUM_POINTS_AROUND_CENTER; this->output_index++) {
+	gmFile = fopen(gm_file_name, "w");
 	sprintf(file_name, "dots_%d.txt", path_index);
 	readFile = fopen(file_name, "r");
 	fscanf(readFile, "Geometric path with %d states\n", &numOfPoints);
@@ -166,6 +151,7 @@ void PostProcessor::ShowOnePath(int path_index)
 	fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
 	fscanf(readFile,  "RealVectorState [%f]\n", &temp);
 	fscanf(readFile, "]\n");
+	fprintf(gmFile, "%f %f %f\n", x1, MAP_SIZE - y1, z1 * Z_AXIS_DIV_FACTOR);
 	cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 	//circle(image, Point(x1,y1), 3, Scalar(255,0,0), FILLED);
 	for(int i=3; i<=numOfPoints; i++)
@@ -179,7 +165,7 @@ void PostProcessor::ShowOnePath(int path_index)
 		fscanf(readFile,  "RealVectorState [%f %f %f]\n", &x2, &y2, &z2);
 		fscanf(readFile,  "RealVectorState [%f]\n", &temp);
 		fscanf(readFile, "]\n");
-		
+		fprintf(gmFile, "%f %f %f\n", x1, MAP_SIZE - y1, z1 * Z_AXIS_DIV_FACTOR);
 		cv::line(normalized_img, cv::Point(x1,y1), cv::Point(x2,y2), cv::Scalar(255,255,0), 1);
 		//cv::circle(image, cv::Point(x2,y2), 3, cv::Scalar(255,0,0), cv::FILLED);
 	}
@@ -187,10 +173,8 @@ void PostProcessor::ShowOnePath(int path_index)
 	cv::circle(normalized_img, cv::Point(this->coordinates[0],this->coordinates[1]), 3, cv::Scalar(255,0,0), cv::FILLED);
 
 	fclose(readFile);
-	cv::imshow( "Our Plane Path", normalized_img);
-	
-	cv::waitKey(0);
-	
+	fclose(gmFile);
+	cv::imwrite(img_file_name, normalized_img);
 
 } 
 

@@ -97,19 +97,19 @@ int main(int argc, char **argv)
 	
 	int best_index = post.FindBestPath();
 	printf("Best path index: %d\n",best_index);
-	post.ShowOnePath(best_index);
+	post.PrepareOnePath(best_index, "best");
 
 	int safe_index = post.FindSafestPath();
 	printf("Safest path index: %d\n",safe_index);
-	post.ShowOnePath(safe_index);
+	post.PrepareOnePath(safe_index, "safe");
 
 	int fast_index = post.FindFastestPath();
 	printf("Fastest path index: %d\n",fast_index);
-	post.ShowOnePath(fast_index);
+	post.PrepareOnePath(fast_index, "fast");
 	
-	int low_index = post.FindLowestPath();
-	printf("Lowest path index: %d\n",low_index);
-	post.ShowOnePath(low_index);
+	//int low_index = post.FindLowestPath();
+	//printf("Lowest path index: %d\n",low_index);
+	//post.PrepareOnePath(low_index);
 
 
 	//post.Show();
