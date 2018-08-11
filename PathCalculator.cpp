@@ -12,10 +12,10 @@ using namespace std;
 //float** global_map;
 cv::Mat global_mat;
 cv::Mat funnel_mat;
-double mat_min, mat_max;
-int up_down_rate, turn_rate;
+double mat_min, mat_max, up_down_rate;
+int turn_rate;
 
-PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states)
+PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, double max_up_down_rate, int radius, int num_states)
 {
 	this->mat = mat;
 	global_mat = mat;
@@ -103,7 +103,7 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	int line_len = 0;
 	int i, x, y, z;
 	int mx, my, mz;
-	double vertical_velocity, motion_time, horiz_dist;
+	double vertical_velocity, motion_time, horiz_dist, vertical_dist, dist;
 	bool res;
 
 	if (pos1[0] < pos2[0])
@@ -128,10 +128,12 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	mz = end_z - start_z;
 
 	// check up/down rate
-	horiz_dist = sqrt(mx*mx + my*my + mz*mz);
-	motion_time = horiz_dist / CONSTANT_VELOCITY; // in seconds
-	vertical_velocity = abs(end_z - start_z) / motion_time; // meters per second, in Z axis
-	if (vertical_velocity > up_down_rate)
+	horiz_dist = sqrt(mx*mx + my*my);
+	dist = sqrt(mx*mx + my*my + mz*mz);
+	vertical_dist = abs(end_z - start_z);
+	motion_time = dist / CONSTANT_VELOCITY; // in seconds
+	vertical_velocity = vertical_dist / motion_time; // pixels per second, in Z axis
+	if (vertical_velocity > up_down_rate || (horiz_dist * HORIZ_VERTICAL_MAX_RATE) < vertical_dist)
 		return false;
 
 	// Special cases
@@ -143,13 +145,13 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 		//return result;
 	}
 
-
+/*
 	if (start_z < end_z)
 		end_z = start_z;
 	else
 		start_z = end_z;
 	mz = 0;
-
+*/
 	// Only one axis changes
 	if (start_x == end_x && start_y == end_y)
 	{

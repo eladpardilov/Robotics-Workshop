@@ -34,7 +34,7 @@ private:
 	cv::Mat mat;
 	int* coordinates = NULL;
 	double max_turn_rate;
-	int max_up_down_rate;
+	double max_up_down_rate;
 	int radius;
 	int num_states;
 	int output_index;
@@ -57,7 +57,7 @@ private:
 	void calcFunnel(int* goal);
 
 public:
-	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, int max_up_down_rate, int radius, int num_states);
+	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, double max_up_down_rate, int radius, int num_states);
 	void PlanRoute();
 	ob::PathPtr getPath() {return thePath;}
 	void finish();

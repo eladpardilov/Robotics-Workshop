@@ -27,8 +27,8 @@ namespace ompl
     {
 
         /** \brief The number of nearest neighbors to consider by
-            default in the construction of the PRM roadmap */
-        static const unsigned int DEFAULT_NEAREST_NEIGHBORS = 10;
+            default in the construction of the PRM roadmap - was 10 by default */
+        static const unsigned int DEFAULT_NEAREST_NEIGHBORS = 50;
     }
 }
 

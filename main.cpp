@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	int * global_end_coordinates = new int[2];
 	int * end_coordinates = new int[2];
 	int max_turn_rate;
-	int max_up_down_rate;
+	double max_up_down_rate;
 	int radius;
 	int num_states;
 	cv::Mat src_image, image, image2;
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 		global_end_coordinates[0] = atoi(argv[1]);
 		global_end_coordinates[1] = atoi(argv[2]);
 		max_turn_rate = atoi(argv[3]);
-		max_up_down_rate = atoi(argv[4]);
+		max_up_down_rate = atof(argv[4]) / Z_AXIS_DIV_FACTOR;
 		num_states = atoi(argv[5]);
 		radius = 5000/30;
 	}
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	//post.PrepareOnePath(low_index);
 
 
-	//post.Show();
+	post.Show();
 	
 
     // for(int i = 0; i < MAP_SIZE; ++i) {
