@@ -28,7 +28,7 @@ namespace ompl
 
         /** \brief The number of nearest neighbors to consider by
             default in the construction of the PRM roadmap - was 10 by default */
-        static const unsigned int DEFAULT_NEAREST_NEIGHBORS = 50;
+        static const unsigned int DEFAULT_NEAREST_NEIGHBORS = 10;
     }
 }
 
@@ -75,8 +75,6 @@ void ompl::geometric::SimpleBatchPRM::setConnectionStrategyType(const std::strin
         useKNearest_ = false;
 	if (starStrategy_ == false)
 	  connectionRadius_ = boost::lexical_cast<double>(strategy_c + 1);
-    } else {
-        //LOGG_ERROR << "Unknown connection strategy: " << strategy_str;
     }
 }
 

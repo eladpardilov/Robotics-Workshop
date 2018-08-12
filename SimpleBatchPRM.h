@@ -65,6 +65,7 @@ namespace ompl
 
             void getPlannerData(base::PlannerData &data) const override;
 
+            /* Custom optimization objective function, combinine euclidian distance and angle differences */
             ompl::base::OptimizationObjectivePtr getBalancedObjective(const ompl::base::SpaceInformationPtr& si);
 
                         

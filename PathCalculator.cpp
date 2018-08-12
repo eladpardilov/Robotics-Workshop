@@ -17,12 +17,9 @@ int turn_rate;
 
 PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate, double max_up_down_rate, int radius, int num_states)
 {
-	this->mat = mat;
 	global_mat = mat;
 	cv::minMaxLoc(global_mat, &mat_min, &mat_max);
 	this->coordinates = coordinates;
-	this->max_turn_rate = max_turn_rate;
-	this->max_up_down_rate = max_up_down_rate;
 	this->radius = radius;
 	this->num_states = num_states;
 	cv::Size size = global_mat.size();
@@ -37,20 +34,6 @@ PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationP
 
 }
 
-
-double PathCalculator::myMotionValidator::FindAngle(double theta, double phi) const
-{
-	double abs_val = std::abs(theta - phi);
-	if (abs_val < 180)
-	{
-		return abs_val;
-	}
-	else
-	{
-		return (360 - abs_val);
-	}
-}
-
 bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, const ob::State *s1, const ob::State *s2) const
 {
 	double angle;
@@ -58,13 +41,7 @@ bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, con
 	bool res;
 	const auto *angle2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 	// if s2 is the destination, we are close enough and the angle doesn't matter
-	
 	if (angle2->values[0] < 0) {
-		/*
-		const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-		const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
-		printf("point: (%.2f,%.2f,%.2f), angle: %.2f\n", pos1->values[0],pos1->values[1],pos1->values[2], angle1->values[0]);
-		*/
 		return true;
 	}
 	
@@ -73,24 +50,12 @@ bool PathCalculator::myMotionValidator::CheckAngleBetweenPoints(double dist, con
     delete utils;
 
 	line_time = dist / CONSTANT_VELOCITY;
-
+	// if the approximated turn rate during the movement is greater
+	// than the one given by the user, movements is not possible
 	if ((angle / line_time) > double(turn_rate))
 		res = false;
-	else {
+	else
 		res = true;
-		/*
-		double phi;
-			const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-		    const auto *angle1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
-		    const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-	    	phi = atan2(pos2->values[1] - pos1->values[1], pos2->values[0] - pos1->values[0]); // getting the angle in PI units
-			phi = (( phi >= 0 ? phi : ( 2*PI + phi ) ) * 360 / ( 2*PI ));
-			printf("PHI: %.2f\n",phi);
-		    printf("point1: (%.2f,%.2f,%.2f), angle: %.2f\n", pos1->values[0],pos1->values[1],pos1->values[2], angle1->values[0]);
-		    printf("point2: (%.2f,%.2f,%.2f), angle: %.2f\n", pos2->values[0],pos2->values[1],pos2->values[2], angle2->values[0]);
-
-		printf("(angle / line_time) = %.2f/%.2f = %.2f <= %.2f  = turn_rate\n", angle, line_time, angle/line_time, (double)turn_rate); */
-	}
 
 	return res;
 }
@@ -141,8 +106,6 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 	{
 		// NULL
 		return true;
-		
-		//return result;
 	}
 
 /*
@@ -251,18 +214,13 @@ bool PathCalculator::myMotionValidator::CheckLineBetweenPoints(int* pos1, int* p
 
 bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
 {
-	//int line_len = len(line);
 	if (line == NULL)
 		return true;
 
 	for (int i=0; i < len; i++)
 	{
-
 		if (global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))) > line[i][2])
-		{
-			//printf("x = %d, y = %d, z = %d z_map = %f\n", int(round(line[i][0])), int(round(line[i][1])), line[i][2], global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))));
 			return false;
-		}		
 	}
 	return true;
 }
@@ -272,7 +230,6 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 {
 	const auto *pos1 = s1->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
 	const auto *pos2 = s2->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-	bool res;
 	bool isLine;
 	bool isAngle;
 	double dist;
@@ -282,10 +239,9 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
     dist = utils->GetEuclidDistance(s1, s2);
     delete utils;
 	
+	// if distance is greater than the maximal state connection predefined distance
 	if (dist > MAX_DISTANCE_FOR_STEP)
-	{
 		return false;
-	}
 
 	pos1_arr[0] = int(round(pos1->values[0]));
 	pos1_arr[1] = int(round(pos1->values[1]));
@@ -295,38 +251,13 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	pos2_arr[1] = int(round(pos2->values[1]));
 	pos2_arr[2] = int(round(pos2->values[2]));
 
-	//int** checkPoints = LineBetweenPoints(pos1_arr, pos2_arr);
-	//if (checkPoints == NULL)
-	//	return true;
-
-	//int onePointSize = sizeof(checkPoints[0]) / sizeof(checkPoints[0][0]);
-	//int numPoints = sizeof(checkPoints) / onePointSize;
-
-	//int numPoints = sizeof(checkPoints)/sizeof(checkPoints[0]);
 	isLine = CheckLineBetweenPoints(pos1_arr, pos2_arr);
 	isAngle = CheckAngleBetweenPoints(dist, s1, s2);
-
-	res = (isLine && isAngle);
-/*
-	if (res) {
-		if (!(x == 0 && y == 0 && z == 0)) {
-			printf("Point1: %f,%f,%f, Angle:%f\nPoint2: %f,%f,%f, Angle:%f\n",
-			pos1->values[0],pos1->values[1],pos1->values[2],angle1->values[0],
-			pos2->values[0],pos2->values[1],pos2->values[2],angle2->values[0]);
-			printf("Exists\n");
-		}
-	}
-	else
-		printf("Doesn't Exist\n"); */
 
 	delete[] pos1_arr;
 	delete[] pos2_arr;
 
-	return (res);
-
-//	global_mat.at<int>(x_int, y_int)
-
-	//return (dist < MAX_DISTANCE_FOR_STEP);
+	return (isLine && isAngle);
 }
 
 bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const ob::State *s2,  __attribute__((unused)) std::pair<ob::State *, double> &lastValid) const
@@ -334,66 +265,46 @@ bool PathCalculator::myMotionValidator::checkMotion(const ob::State *s1, const o
 	return checkMotion(s1, s2);
 }
 
-
-// This is a problem-specific sampler that automatically generates valid
-// states; it doesn't need to call SpaceInformation::isValid. This is an
-// example of constrained sampling. If you can explicitly describe the set valid
-// states and can draw samples from it, then this is typically much more
-// efficient than generating random samples from the entire state space and
-// checking for validity.
-class MyValidStateSampler : public ob::ValidStateSampler
+PathCalculator::MyValidStateSampler::MyValidStateSampler(const ob::SpaceInformation *si) : ValidStateSampler(si)
 {
-public:
-	MyValidStateSampler(const ob::SpaceInformation *si) : ValidStateSampler(si)
-	{
-		name_ = "my sampler";
-	}
-	// Generate a sample in the valid part of the R^3 state space
-	// Valid states satisfy the following constraints: z > global_map[x,y]
-	bool sample(ob::State *state) override
-	{
-		const auto *pos = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
-		const auto *angle = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
-		//double* val = static_cast<ob::RealVectorStateSpace::StateType*>(state)->values;
+	name_ = "my sampler";
+}
 
-		double x = rng_.uniformReal(0,MAP_SIZE);
-		double y = rng_.uniformReal(0,MAP_SIZE);
-		int x_int = (int)x;
-		int y_int = (int)y;
-	//printf("point at map: (%.2f,%.2f,%.2f), ", x,y,global_mat.at<float>(x_int, y_int));
-		if (global_mat.at<float>(y_int, x_int) > mat_max)
-			return false;
-		double z_min = max(global_mat.at<float>(y_int, x_int), funnel_mat.at<float>(y_int, x_int));
-		double z = rng_.uniformReal(z_min, mat_max);
+bool PathCalculator::MyValidStateSampler::sample(ob::State *state)
+{
+	const auto *pos = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
+	const auto *angle = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(1);
 
-		pos->values[0] = x;
-		pos->values[1] = y;
-		pos->values[2] = z;
-		angle->values[0] = rng_.uniformReal(0, 360);
-		if (si_->isValid(state)) {
-			//printf("point taken: (%.2f,%.2f,%.2f)", x,y,z);
-			//printf(" valid state\n");
-			return true;
-		}
-		//printf("\n");
-
+	double x = rng_.uniformReal(0,MAP_SIZE);
+	double y = rng_.uniformReal(0,MAP_SIZE);
+	int x_int = (int)x;
+	int y_int = (int)y;
+	if (global_mat.at<float>(y_int, x_int) > mat_max)
 		return false;
-	}
-	// We don't need this in the example below.
-	bool sampleNear(ob::State* /*state*/, const ob::State* /*near*/, const double /*distance*/) override
-	{
-		throw ompl::Exception("MyValidStateSampler::sampleNear", "not implemented");
-		return false;
-	}
-protected:
-	ompl::RNG rng_;
-};
+	double z_min = max(global_mat.at<float>(y_int, x_int), funnel_mat.at<float>(y_int, x_int));
+	double z = rng_.uniformReal(z_min, mat_max);
 
+	pos->values[0] = x;
+	pos->values[1] = y;
+	pos->values[2] = z;
+	angle->values[0] = rng_.uniformReal(0, 360);
+	if (si_->isValid(state)) {
+		return true;
+	}
+
+	return false;
+}
+// We don't need this in the example below.
+bool PathCalculator::MyValidStateSampler::sampleNear(ob::State* /*state*/, const ob::State* /*near*/, const double /*distance*/)
+{
+	throw ompl::Exception("MyValidStateSampler::sampleNear", "not implemented");
+	return false;
+}
 
 // return an instance of my sampler
 ob::ValidStateSamplerPtr PathCalculator::allocMyValidStateSampler(const ob::SpaceInformation *si)
 {
-	return std::make_shared<MyValidStateSampler>(si);
+	return std::make_shared<PathCalculator::MyValidStateSampler>(si);
 }
 
 
@@ -403,9 +314,8 @@ bool PathCalculator::isStateValid(const ob::State *state)
 {
 	const auto *pos = state->as<ob::CompoundState>()->as<ob::RealVectorStateSpace::StateType>(0);
 
-	//const ob::RealVectorStateSpace::StateType& pos = *state->as<ob::RealVectorStateSpace::StateType>();
 	if ((pos->values[0]<MAP_SIZE && pos->values[0]>0) && (pos->values[1]<MAP_SIZE && pos->values[1]>0))
-		return pos->values[2] < mat_max + 1;
+		return pos->values[2] <= mat_max;
 	else
 		return false;
 }
@@ -450,16 +360,15 @@ void PathCalculator::PlanRoute()
 {
 	int * goal_arr = new int[2];
 	char file_name[11];
+	ob::PathPtr thePath;
 
 	// construct the state space we are planning in
-	//auto space(std::make_shared<ob::RealVectorStateSpace>(4));
 	ob::CompoundStateSpace *cs = new ompl::base::CompoundStateSpace();
 	cs->addSubspace(ompl::base::StateSpacePtr(std::make_shared<ob::RealVectorStateSpace>(3)), 1.0);
 	cs->addSubspace(ompl::base::StateSpacePtr(std::make_shared<ob::RealVectorStateSpace>(1)), 0.0);
 	ob::StateSpacePtr space(cs);
-	// auto space(std::make_shared<ob::SE3StateSpace>());
 
-	// set the bounds for the R^3 part of SE(3)
+	// set the bounds for the R^3 part and the angle part
 	ob::RealVectorBounds bounds(3);
 	ob::RealVectorBounds angle_bound(1);
 	bounds.setLow(0);
@@ -475,7 +384,7 @@ void PathCalculator::PlanRoute()
 	auto si(std::make_shared<ob::SpaceInformation>(space));
 	// set state validity checking for this space
 	si->setStateValidityChecker(isStateValid);
-	//si->setStateValidityCheckingResolution(0.03);
+	si->setStateValidityCheckingResolution(0.03);
 	si->setValidStateSamplerAllocator(allocMyValidStateSampler);
 	si->setMotionValidator(std::make_shared<myMotionValidator>(si));
 	si->setup();
@@ -490,8 +399,6 @@ void PathCalculator::PlanRoute()
 	// we will use the -1 to identify we are at the destination and angle doesn't matter
 	goal[3] = -1;
 	printf("point goal: (%.2f,%.2f,%.2f)\n", goal[0],goal[1],goal[2]);
-	// goal->rotation().setIdentity();
-	//planner->setConnectionStrategyType("K");
 	planner->setup();
 
 	// Calc the funnel area of the points generator
@@ -500,13 +407,10 @@ void PathCalculator::PlanRoute()
 	calcFunnel(goal_arr);
 	int cnt = 0;
 	for (double angle = 0; angle < 2*PI - EPSILON; angle += 2*PI/NUM_POINTS_AROUND_CENTER) {
-	//for (double angle=2*PI*5/8; angle<=2*PI; angle+=2*PI) {
 		ob::ScopedState<ob::RealVectorStateSpace> start(space);
 		start[0] = MAP_SIZE/2 + radius * cos(angle);
 		start[1] = MAP_SIZE/2 + radius * sin(angle);
 		start[3] = (int)round((360 * angle / (2 * PI) + 180)) % 360;
-	//	start[0] = 0.01;
-	//	start[1] = 20;
 		start[2] = mat_max;
 		printf("point start: (%.2f,%.2f,%.2f), angle: %.2f\n", start[0],start[1],start[2], start[3]);
 
@@ -516,17 +420,12 @@ void PathCalculator::PlanRoute()
 		pdef->setOptimizationObjective(planner->getBalancedObjective(si));
 		// set the problem we are trying to solve for the planner
 		planner->setProblemDefinition(pdef);
+
 		// perform setup steps for the planner
-
-		// print the settings for this space
-		// si->printSettings(std::cout);
-		// print the problem settings
-		// pdef->print(std::cout);
-
-		// attempt to solve the problem within ten seconds of planning time
 		if (cnt == 0)
 			planner->miniSetup();
 
+		// attempt to solve the problem within the planning time limitations
 		ob::PlannerStatus solved = planner->ob::Planner::solve(SOLVING_TIME);
 		if (solved)
 		{
@@ -544,7 +443,7 @@ void PathCalculator::PlanRoute()
 			sprintf(file_name, "dots_%d.txt", this->output_index);
 			this->output_index++;
 			fout.open(file_name, std::ios::out | std::ios::trunc);
-			//fout.open(DOTS_FILE_NAME, std::ios::out | std::ios::trunc);
+
 			if(!fout)
 				std::cout << "Error opening file" << std::endl;
 			thePath->print(fout);
@@ -556,7 +455,6 @@ void PathCalculator::PlanRoute()
 		cnt++;
 	
 	}
-	// start->rotation().setIdentity();
 	delete[] goal_arr;
 }
 
@@ -564,4 +462,5 @@ void PathCalculator::PlanRoute()
 void PathCalculator::finish()
 {
 	funnel_mat.release();
+	// TODO: add global_mat release here?
 }

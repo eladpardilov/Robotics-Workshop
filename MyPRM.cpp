@@ -57,7 +57,7 @@ namespace ompl
     {
         /** \brief The number of steps to take for a random bounce
             motion generated as part of the expansion step of PRM. */
-        static const unsigned int MAX_RANDOM_BOUNCE_STEPS = 5;
+        static const unsigned int MAX_RANDOM_BOUNCE_STEPS = 10;
 
         /** \brief The time in seconds for a single roadmap building operation (dt)*/
         static const double ROADMAP_BUILD_TIME = 0.2;
