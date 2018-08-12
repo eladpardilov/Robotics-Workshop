@@ -32,41 +32,41 @@ int main(int argc, char **argv)
 	cv::Mat src_image, image, image2;
 	char gm_tiff[19];
 
+	// Check the number of parameters
+	if (argc >= 2 && argc < MAIN_NUM_OF_ARGS) {
+		// Tell the user how to run the program
+		string arg_string = "./PathCalculator.o man_coordinates_x man_coordinates_y max_turn_rate max_up_down_rate num_states";
+		std::cerr << "Usage: " << arg_string << std::endl;
+
+		return RETURN_CODE_ERROR;
+	}
+
+	// Input parameters - default sets when none given:
 	if (argc < 2) {
-		printf("Ignoring input params...\n");
+		printf("Using default input params...\n");
 		global_end_coordinates[0] = 230;
 		global_end_coordinates[1] = 350;
 		max_turn_rate = 45; // angle per second
 		max_up_down_rate = 100 / Z_AXIS_DIV_FACTOR; // meters per second
-		radius = 5000/30;
 		num_states = 10000;
 	} else {
-		// Parse Arguments
+		// Parse Arguments if given
 		global_end_coordinates[0] = atoi(argv[1]);
 		global_end_coordinates[1] = atoi(argv[2]);
 		max_turn_rate = atoi(argv[3]);
 		max_up_down_rate = atof(argv[4]) / Z_AXIS_DIV_FACTOR;
-		num_states = atoi(argv[5]);
-		radius = 5000/30;
+		num_states = atoi(argv[5]);		
 	}
 	
+	radius = 5000/30;
+
 	end_coordinates[0] = 180;
 	end_coordinates[1] = 180;
 
 	printf("Taking (%d,%d) as destination coordinates.\n", global_end_coordinates[0], global_end_coordinates[1]);
 	printf("-> (%d,%d) in the displayed tile\n", end_coordinates[0], end_coordinates[1]);
 
-
-	// Check the number of parameters
-	/*
-	if (argc < MAIN_NUM_OF_ARGS) {
-		// Tell the user how to run the program
-		string arg_string = "tif_file man_coordinates_x man_coordinates_y initial_radius helicopter_velocity";
-		std::cerr << "Usage: " << argv[0] << arg_string << std::endl;
-		return RETURN_CODE_ERROR;
-	}
-	*/
-	
+	// Reading the tiff image
 	src_image = cv::imread(MAP_TIF , CV_LOAD_IMAGE_UNCHANGED);
 	
 	cv::Rect region_of_interest = cv::Rect(global_end_coordinates[0] - MAP_SIZE/2, global_end_coordinates[1] - MAP_SIZE/2, MAP_SIZE, MAP_SIZE);
@@ -76,17 +76,11 @@ int main(int argc, char **argv)
 	image = image2 / Z_AXIS_DIV_FACTOR;
 	sprintf(gm_tiff, "roi_%d_%d.tif", global_end_coordinates[0], global_end_coordinates[1]);
 	cv::imwrite(gm_tiff,  image2);
-/*
-	printf("Map size is %d X %d, map overview: (point every 10 coordinates):\n", MAP_SIZE, MAP_SIZE);
-	for(int y=0; y < MAP_SIZE; y+=10){
-		for(int x=0; x < MAP_SIZE; x+=10){
-			printf("%4.1f ", image.at<float>(y, x));
-		}
-		printf("\n");
-	}*/
+
+	// Security space
+	image += (30 / Z_AXIS_DIV_FACTOR);
 
 	// Create object for the PathCalculator
-	image += (30 / Z_AXIS_DIV_FACTOR);
 	PathCalculator path(image, end_coordinates, max_turn_rate, max_up_down_rate, radius, num_states);
 
 	path.PlanRoute();
@@ -107,14 +101,9 @@ int main(int argc, char **argv)
 	printf("Fastest path index: %d\n",fast_index);
 	post.PrepareOnePath(fast_index, "fast");
 	
-	//int low_index = post.FindLowestPath();
-	//printf("Lowest path index: %d\n",low_index);
-	//post.PrepareOnePath(low_index);
-
-
 	post.Show();
 	
-
+	/* TODO: check which releases are to be made */	
     // for(int i = 0; i < MAP_SIZE; ++i) {
     //	 delete [] map[i];
     // }

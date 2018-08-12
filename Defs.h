@@ -10,7 +10,7 @@
 
 #define RETURN_CODE_ERROR (-1)
 #define RETURN_CODE_SUCCESS (0)
-#define MAIN_NUM_OF_ARGS (4)
+#define MAIN_NUM_OF_ARGS (6)
 #define MAX_HEIGHT	(50)
 #define	MAP_SIZE	(360)
 #define HORIZ_VERTICAL_MAX_RATE (2)
