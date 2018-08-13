@@ -20,17 +20,17 @@ PostProcessor::PostProcessor(int* coordinates)
 
 int PostProcessor::FindBestPath()
 {
-	return FindPathByPercentage(0.8, 0.2);
+	return FindPathByPercentage(0.7, 0.3);
 }
 
 int PostProcessor::FindFastestPath()
 {
-	return FindPathByPercentage(1, 0);
+	return FindPathByPercentage(0.9, 0.1);
 }
 
 int PostProcessor::FindSafestPath()
 {
-	return FindPathByPercentage(0, 1);
+	return FindPathByPercentage(0.1, 0.9);
 }
 
 int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent)
@@ -65,7 +65,7 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 		fscanf(readFile,  "RealVectorState [%f]\n", &t2);
 		fscanf(readFile, "]\n");
 
-		line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
+		line_cost = (utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)/10) * euc_percent + (utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)/360) * angle_percent;
 		path_cost = path_cost + line_cost; 
 
 
@@ -85,7 +85,7 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 			fscanf(readFile,  "RealVectorState [%f]\n", &t2);
 			fscanf(readFile, "]\n");
 
-			line_cost = utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)*euc_percent + utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)*angle_percent;
+			line_cost = (utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2)/10)*euc_percent + (utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2)/360)*angle_percent;
 			//printf("auc =  %f, angle = %f, line = %f",utils_obj.GetEuclidDistance(x1, y1, z1, x2, y2, z2), utils_obj.GetTotalAngle(x1, y1, t1, x2, y2, t2), line_cost);
 			path_cost = path_cost + line_cost; 
 		}
