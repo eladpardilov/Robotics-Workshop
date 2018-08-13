@@ -23,8 +23,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	int * global_end_coordinates = new int[2];
-	int * end_coordinates = new int[2];
+	int * global_end_coordinates;
+	int * end_coordinates;
 	int max_turn_rate;
 	double max_up_down_rate;
 	int radius;
@@ -41,6 +41,9 @@ int main(int argc, char **argv)
 		return RETURN_CODE_ERROR;
 	}
 
+	global_end_coordinates = new int[2];
+	end_coordinates = new int[2];
+	
 	// Input parameters - default sets when none given:
 	if (argc < 2) {
 		printf("Using default input params...\n");
@@ -109,6 +112,8 @@ int main(int argc, char **argv)
     // }
 	//delete [] map;
 
+	delete[] global_end_coordinates;
+	delete[] end_coordinates;
 }
 
 
