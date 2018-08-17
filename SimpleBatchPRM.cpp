@@ -34,7 +34,7 @@ namespace ompl
 
 
 ompl::geometric::SimpleBatchPRM::SimpleBatchPRM(const base::SpaceInformationPtr &si, bool starStrategy) :
-    ompl::geometric::MyPRM(si, starStrategy),
+    ompl::geometric::DirectedPRM(si, starStrategy),
     useKNearest_(true),
     numNeighbors_(magic::DEFAULT_NEAREST_NEIGHBORS),
     total_num_of_samples_(0),

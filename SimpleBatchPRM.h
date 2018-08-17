@@ -2,7 +2,7 @@
 #define OMPL_GEOMETRIC_PLANNERS_SIMPLE_BATCH_PRM_
 
 #include <ompl/geometric/planners/PlannerIncludes.h>
-#include "MyPRM.h"
+#include "DirectedPRM.h"
 #include <ompl/datastructures/NearestNeighbors.h>
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/SE3StateSpace.h>
@@ -32,7 +32,7 @@ namespace ompl
     {
 
         /** \brief Probabilistic RoadMap planner for Aviel's experiments */
-        class SimpleBatchPRM : public MyPRM
+        class SimpleBatchPRM : public DirectedPRM
         {
         public:
 

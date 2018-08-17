@@ -34,8 +34,8 @@
 
 /* Author: Ioan Sucan, James D. Marble, Ryan Luna */
 
-#ifndef OMPL_GEOMETRIC_PLANNERS_MYRM_PRM_
-#define OMPL_GEOMETRIC_PLANNERS_MYPRM_PRM_
+#ifndef OMPL_GEOMETRIC_PLANNERS_DIRECTEDPRM_PRM_
+#define OMPL_GEOMETRIC_PLANNERS_DIRECTEDPRM_PRM_
 
 #include "ompl/geometric/planners/PlannerIncludes.h"
 #include "ompl/datastructures/NearestNeighbors.h"
@@ -77,7 +77,7 @@ namespace ompl
         */
 
         /** \brief Probabilistic RoadMap planner */
-        class MyPRM : public base::Planner
+        class DirectedPRM : public base::Planner
         {
         public:
             struct vertex_state_t
@@ -142,9 +142,9 @@ namespace ompl
             typedef std::function<bool(const Vertex &, const Vertex &)> ConnectionFilter;
 
             /** \brief Constructor */
-            MyPRM(const base::SpaceInformationPtr &si, bool starStrategy = false);
+            DirectedPRM(const base::SpaceInformationPtr &si, bool starStrategy = false);
 
-            ~MyPRM() override;
+            ~DirectedPRM() override;
 
             void setProblemDefinition(const base::ProblemDefinitionPtr &pdef) override;
 

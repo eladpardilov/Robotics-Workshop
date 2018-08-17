@@ -4,7 +4,7 @@ CFLAGS = -std=c++11 -g
 LDFLAGS = -L/usr/local/lib -I/usr/include/eigen3 -lompl -pthread -lboost_system
 
 # source files:
-SOURCES = PathCalculator.cpp MyPRM.cpp SimpleBatchPRM.cpp main.cpp PostProcessor.cpp AngleDiffOptimizationObjective.cpp Utils.cpp
+SOURCES = PathCalculator.cpp DirectedPRM.cpp SimpleBatchPRM.cpp main.cpp PostProcessor.cpp AngleDiffOptimizationObjective.cpp Utils.cpp
 # output executable:
 OBJECTS = PathCalculator.o
 

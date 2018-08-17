@@ -34,7 +34,7 @@
 
 /* Author: Ioan Sucan, James D. Marble, Ryan Luna */
 
-#include "MyPRM.h"
+#include "DirectedPRM.h"
 #include "ompl/geometric/planners/prm/ConnectionStrategy.h"
 #include "ompl/base/goals/GoalSampleableRegion.h"
 #include "ompl/base/objectives/PathLengthOptimizationObjective.h"
@@ -68,8 +68,8 @@ namespace ompl
     }
 }
 
-ompl::geometric::MyPRM::MyPRM(const base::SpaceInformationPtr &si, bool starStrategy)
-  : base::Planner(si, "MyPRM")
+ompl::geometric::DirectedPRM::DirectedPRM(const base::SpaceInformationPtr &si, bool starStrategy)
+  : base::Planner(si, "DirectedPRM")
   , starStrategy_(starStrategy)
   , stateProperty_(boost::get(vertex_state_t(), g_))
   , totalConnectionAttemptsProperty_(boost::get(vertex_total_connection_attempts_t(), g_))
@@ -83,7 +83,7 @@ ompl::geometric::MyPRM::MyPRM(const base::SpaceInformationPtr &si, bool starStra
     specs_.multithreaded = true;
 
     if (!starStrategy_)
-        Planner::declareParam<unsigned int>("max_nearest_neighbors", this, &MyPRM::setMaxNearestNeighbors,
+        Planner::declareParam<unsigned int>("max_nearest_neighbors", this, &DirectedPRM::setMaxNearestNeighbors,
                                             std::string("8:1000"));
 
     addPlannerProgressProperty("iterations INTEGER", [this]
@@ -104,12 +104,12 @@ ompl::geometric::MyPRM::MyPRM(const base::SpaceInformationPtr &si, bool starStra
                                });
 }
 
-ompl::geometric::MyPRM::~MyPRM()
+ompl::geometric::DirectedPRM::~DirectedPRM()
 {
     freeMemory();
 }
 
-void ompl::geometric::MyPRM::setup()
+void ompl::geometric::DirectedPRM::setup()
 {
     Planner::setup();
     if (!nn_)
@@ -163,7 +163,7 @@ void ompl::geometric::MyPRM::setup()
     }
 }
 
-void ompl::geometric::MyPRM::setMaxNearestNeighbors(unsigned int k)
+void ompl::geometric::DirectedPRM::setMaxNearestNeighbors(unsigned int k)
 {
     if (starStrategy_)
         throw Exception("Cannot set the maximum nearest neighbors for " + getName());
@@ -183,20 +183,20 @@ void ompl::geometric::MyPRM::setMaxNearestNeighbors(unsigned int k)
         setup();
 }
 
-void ompl::geometric::MyPRM::setProblemDefinition(const base::ProblemDefinitionPtr &pdef)
+void ompl::geometric::DirectedPRM::setProblemDefinition(const base::ProblemDefinitionPtr &pdef)
 {
     Planner::setProblemDefinition(pdef);
     clearQuery();
 }
 
-void ompl::geometric::MyPRM::clearQuery()
+void ompl::geometric::DirectedPRM::clearQuery()
 {
     startM_.clear();
     goalM_.clear();
     pis_.restart();
 }
 
-void ompl::geometric::MyPRM::clear()
+void ompl::geometric::DirectedPRM::clear()
 {
     Planner::clear();
     sampler_.reset();
@@ -210,19 +210,19 @@ void ompl::geometric::MyPRM::clear()
     bestCost_ = base::Cost(std::numeric_limits<double>::quiet_NaN());
 }
 
-void ompl::geometric::MyPRM::freeMemory()
+void ompl::geometric::DirectedPRM::freeMemory()
 {
     foreach (Vertex v, boost::vertices(g_))
         si_->freeState(stateProperty_[v]);
     g_.clear();
 }
 
-void ompl::geometric::MyPRM::expandRoadmap(double expandTime)
+void ompl::geometric::DirectedPRM::expandRoadmap(double expandTime)
 {
     expandRoadmap(base::timedPlannerTerminationCondition(expandTime));
 }
 
-void ompl::geometric::MyPRM::expandRoadmap(const base::PlannerTerminationCondition &ptc)
+void ompl::geometric::DirectedPRM::expandRoadmap(const base::PlannerTerminationCondition &ptc)
 {
     if (!simpleSampler_)
         simpleSampler_ = si_->allocStateSampler();
@@ -233,7 +233,7 @@ void ompl::geometric::MyPRM::expandRoadmap(const base::PlannerTerminationConditi
     si_->freeStates(states);
 }
 
-void ompl::geometric::MyPRM::expandRoadmap(const base::PlannerTerminationCondition &ptc,
+void ompl::geometric::DirectedPRM::expandRoadmap(const base::PlannerTerminationCondition &ptc,
                                          std::vector<base::State *> &workStates)
 {
     // construct a probability distribution over the vertices in the roadmap
@@ -296,12 +296,12 @@ void ompl::geometric::MyPRM::expandRoadmap(const base::PlannerTerminationConditi
     }
 }
 
-void ompl::geometric::MyPRM::growRoadmap(double growTime)
+void ompl::geometric::DirectedPRM::growRoadmap(double growTime)
 {
     growRoadmap(base::timedPlannerTerminationCondition(growTime));
 }
 
-void ompl::geometric::MyPRM::growRoadmap(const base::PlannerTerminationCondition &ptc)
+void ompl::geometric::DirectedPRM::growRoadmap(const base::PlannerTerminationCondition &ptc)
 {
     if (!isSetup())
         setup();
@@ -313,7 +313,7 @@ void ompl::geometric::MyPRM::growRoadmap(const base::PlannerTerminationCondition
     si_->freeState(workState);
 }
 
-void ompl::geometric::MyPRM::growRoadmap(const base::PlannerTerminationCondition &ptc, base::State *workState)
+void ompl::geometric::DirectedPRM::growRoadmap(const base::PlannerTerminationCondition &ptc, base::State *workState)
 {
     /* grow roadmap in the regular fashion -- sample valid states, add them to the roadmap, add valid connections */
     while (!ptc)
@@ -336,7 +336,7 @@ void ompl::geometric::MyPRM::growRoadmap(const base::PlannerTerminationCondition
     }
 }
 
-void ompl::geometric::MyPRM::checkForSolution(const base::PlannerTerminationCondition &ptc, base::PathPtr &solution)
+void ompl::geometric::DirectedPRM::checkForSolution(const base::PlannerTerminationCondition &ptc, base::PathPtr &solution)
 {
     auto *goal = static_cast<base::GoalSampleableRegion *>(pdef_->getGoal().get());
     while (!ptc && !addedNewSolution_)
@@ -357,7 +357,7 @@ void ompl::geometric::MyPRM::checkForSolution(const base::PlannerTerminationCond
     }
 }
 
-bool ompl::geometric::MyPRM::maybeConstructSolution(const std::vector<Vertex> &starts, const std::vector<Vertex> &goals,
+bool ompl::geometric::DirectedPRM::maybeConstructSolution(const std::vector<Vertex> &starts, const std::vector<Vertex> &goals,
                                                   base::PathPtr &solution)
 {
     base::Goal *g = pdef_->getGoal().get();
@@ -399,12 +399,12 @@ bool ompl::geometric::MyPRM::maybeConstructSolution(const std::vector<Vertex> &s
     return false;
 }
 
-bool ompl::geometric::MyPRM::addedNewSolution() const
+bool ompl::geometric::DirectedPRM::addedNewSolution() const
 {
     return addedNewSolution_;
 }
 
-ompl::base::PlannerStatus ompl::geometric::MyPRM::solve(const base::PlannerTerminationCondition &ptc)
+ompl::base::PlannerStatus ompl::geometric::DirectedPRM::solve(const base::PlannerTerminationCondition &ptc)
 {
     checkValidity();
     auto *goal = dynamic_cast<base::GoalSampleableRegion *>(pdef_->getGoal().get());
@@ -481,7 +481,7 @@ ompl::base::PlannerStatus ompl::geometric::MyPRM::solve(const base::PlannerTermi
     return sol ? base::PlannerStatus::EXACT_SOLUTION : base::PlannerStatus::TIMEOUT;
 }
 
-void ompl::geometric::MyPRM::constructRoadmap(const base::PlannerTerminationCondition &ptc)
+void ompl::geometric::DirectedPRM::constructRoadmap(const base::PlannerTerminationCondition &ptc)
 {
     if (!isSetup())
         setup();
@@ -513,7 +513,7 @@ void ompl::geometric::MyPRM::constructRoadmap(const base::PlannerTerminationCond
     si_->freeStates(xstates);
 }
 
-ompl::geometric::MyPRM::Vertex ompl::geometric::MyPRM::addMilestone(base::State *state)
+ompl::geometric::DirectedPRM::Vertex ompl::geometric::DirectedPRM::addMilestone(base::State *state)
 {
     std::lock_guard<std::mutex> _(graphMutex_);
 
@@ -548,17 +548,17 @@ ompl::geometric::MyPRM::Vertex ompl::geometric::MyPRM::addMilestone(base::State 
     return m;
 }
 
-void ompl::geometric::MyPRM::uniteComponents(Vertex m1, Vertex m2)
+void ompl::geometric::DirectedPRM::uniteComponents(Vertex m1, Vertex m2)
 {
     disjointSets_.union_set(m1, m2);
 }
 
-bool ompl::geometric::MyPRM::sameComponent(Vertex m1, Vertex m2)
+bool ompl::geometric::DirectedPRM::sameComponent(Vertex m1, Vertex m2)
 {
     return boost::same_component(m1, m2, disjointSets_);
 }
 
-ompl::base::PathPtr ompl::geometric::MyPRM::constructSolution(const Vertex &start, const Vertex &goal)
+ompl::base::PathPtr ompl::geometric::DirectedPRM::constructSolution(const Vertex &start, const Vertex &goal)
 {
     std::lock_guard<std::mutex> _(graphMutex_);
     boost::vector_property_map<Vertex> prev(boost::num_vertices(g_));
@@ -600,18 +600,18 @@ ompl::base::PathPtr ompl::geometric::MyPRM::constructSolution(const Vertex &star
     return p;
 }
 
-void ompl::geometric::MyPRM::getPlannerData(base::PlannerData &data) const
+void ompl::geometric::DirectedPRM::getPlannerData(base::PlannerData &data) const
 {
     Planner::getPlannerData(data);
 
     // Explicitly add start and goal states:
     for (unsigned long i : startM_)
         data.addStartVertex(
-            base::PlannerDataVertex(stateProperty_[i], const_cast<MyPRM *>(this)->disjointSets_.find_set(i)));
+            base::PlannerDataVertex(stateProperty_[i], const_cast<DirectedPRM *>(this)->disjointSets_.find_set(i)));
 
     for (unsigned long i : goalM_)
         data.addGoalVertex(
-            base::PlannerDataVertex(stateProperty_[i], const_cast<MyPRM *>(this)->disjointSets_.find_set(i)));
+            base::PlannerDataVertex(stateProperty_[i], const_cast<DirectedPRM *>(this)->disjointSets_.find_set(i)));
 
     // Adding edges and all other vertices simultaneously
     foreach (const Edge e, boost::edges(g_))
@@ -624,12 +624,12 @@ void ompl::geometric::MyPRM::getPlannerData(base::PlannerData &data) const
         data.addEdge(base::PlannerDataVertex(stateProperty_[v2]), base::PlannerDataVertex(stateProperty_[v1]));
 
         // Add tags for the newly added vertices
-        data.tagState(stateProperty_[v1], const_cast<MyPRM *>(this)->disjointSets_.find_set(v1));
-        data.tagState(stateProperty_[v2], const_cast<MyPRM *>(this)->disjointSets_.find_set(v2));
+        data.tagState(stateProperty_[v1], const_cast<DirectedPRM *>(this)->disjointSets_.find_set(v1));
+        data.tagState(stateProperty_[v2], const_cast<DirectedPRM *>(this)->disjointSets_.find_set(v2));
     }
 }
 
-ompl::base::Cost ompl::geometric::MyPRM::costHeuristic(Vertex u, Vertex v) const
+ompl::base::Cost ompl::geometric::DirectedPRM::costHeuristic(Vertex u, Vertex v) const
 {
     return opt_->motionCostHeuristic(stateProperty_[u], stateProperty_[v]);
 }
