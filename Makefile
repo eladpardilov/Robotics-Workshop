@@ -1,20 +1,4 @@
-# basic variables:
-CC = g++
-CFLAGS = -std=c++11 -g 
-LDFLAGS = -L/usr/local/lib -I/usr/include/eigen3 -lompl -pthread -lboost_system
-
-# source files:
-SOURCES = PathCalculator.cpp MyPRM.cpp SimpleBatchPRM.cpp main.cpp PostProcessor.cpp AngleDiffOptimizationObjective.cpp Utils.cpp
-# output executable:
-OBJECTS = PathCalculator.o
-
-LDFLAGS += `pkg-config --cflags --libs opencv`
-
-# if we want to take care of warnings (off by default since PRM and SimpleBatchPRM have warnings and we don't change those parts of the files)
-#CFLAGS += -pedantic-errors -Wall -Wextra -Werror
-
 all:
-	$(CC) $(CFLAGS) $(SOURCES) -o $(OBJECTS) $(LDFLAGS)
-
+	g++ -L/usr/local/lib -L/usr/include/glibmm-2.4/ -std=c++11 -I/usr/include/eigen3 -g PRM_Gui.cpp PRM_Gui_img.cpp main.cpp -o output.o `pkg-config --cflags --libs gtkmm-3.0`
 clean:
-	rm -rf $(OBJECTS)
+	rm -rf output.o
