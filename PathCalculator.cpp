@@ -9,7 +9,6 @@
 
 using namespace std;
 
-//float** global_map;
 cv::Mat global_mat;
 cv::Mat funnel_mat;
 double mat_min, mat_max, up_down_rate;

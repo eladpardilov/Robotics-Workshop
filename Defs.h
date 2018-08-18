@@ -1,16 +1,18 @@
-/*
- * Defs.h
- *
- *  Created on: May 9, 2018
- *      Author: Dana
- */
-
 #ifndef DEFS_H_
 #define DEFS_H_
 
+#define DEFAULT_NUM_STATES 10000
+#define DEFAULT_RADIUS 5000/30
+#define DEFAULT_ANGLE 30
+#define DEFAULT_X 180
+#define DEFAULT_Y 180
+#define DEFAULT_RATE 50 
+#define DEFAULTF_FILE "map.tif"
+
+
 #define RETURN_CODE_ERROR (-1)
 #define RETURN_CODE_SUCCESS (0)
-#define MAIN_NUM_OF_ARGS (6)
+
 #define MAX_HEIGHT	(50)
 #define	MAP_SIZE	(360)
 #define HORIZ_VERTICAL_MAX_RATE (2)
@@ -28,6 +30,9 @@
 #define EPSILON (0.000001)
 #define MAP_TIF "N46E010.tif"
 #define PI (3.1415926535897)
-//#define MAP_TIF "sample.tif"
+
+#define BEST_IMG_FILE "img_best.jpg" 
+#define SAFE_IMG_FILE "img_safe.jpg" 
+#define FAST_IMG_FILE "img_fast.jpg" 
 
 #endif /* DEFS_H_ */
