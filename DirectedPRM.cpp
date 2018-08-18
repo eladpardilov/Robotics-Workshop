@@ -47,7 +47,7 @@
 #include <boost/foreach.hpp>
 #include <thread>
 
-#include "ompl/geometric/planners/prm/GoalVisitor.hpp"
+#include "GoalVisitor.hpp"
 
 #define foreach BOOST_FOREACH
 
