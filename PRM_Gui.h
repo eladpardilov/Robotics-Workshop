@@ -20,6 +20,9 @@ public:
   bool m_safe = false;
   bool m_best = false;
   
+  //This variable is useful on a "x-button" case,
+  //in that case the program should terminate,
+  //and the second window will not appear (on main.cpp) 
   bool m_closedByX;  
 
 protected:
@@ -30,9 +33,6 @@ protected:
   void on_button_safe();
   bool on_button_x(GdkEventAny*);
 
-
-  
-
   //Child widgets:
   Gtk::Box m_VBox;
 
@@ -41,7 +41,7 @@ protected:
 
   Gtk::Grid m_Grid;
   
-  Gtk::Button m_ButtonStart; //m_ButtonXY, m_ButtonAngle, m_ButtonRate, m_ButtonFile, 
+  Gtk::Button m_ButtonStart;  
   
   Gtk::CheckButton m_ButtonFast, m_ButtonBest, m_ButtonSafe;
   

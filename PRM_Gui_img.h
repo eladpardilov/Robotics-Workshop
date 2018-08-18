@@ -9,6 +9,11 @@
 #include <fstream>
 #include "Defs.h"
 
+/*
+ * A window displaying the 3 routes chosen by the user.  
+ * (The chosen routes are given to the constructor- 
+ * bool safe, best, fast) 
+ */
 class PRM_Gui_img : public Gtk::Window
 {
 public:
@@ -16,6 +21,7 @@ public:
     ~PRM_Gui_img();
 
 protected:
+    //GTK container for the grid 
     Gtk::Box m_VBox;
 
     Gtk::Grid m_Grid;
@@ -26,6 +32,7 @@ protected:
     Gtk::Image* m_safe;
     Gtk::Image* m_fast; 
     
+    //Routes chosen by the user to see    
     bool m_bBest, m_bSafe, m_bFast;
 };
 

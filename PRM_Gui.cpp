@@ -30,15 +30,14 @@ PRM_Gui::PRM_Gui() :
 
   add(m_VBox);
 
-  //m_VBox.pack_start(m_Label_explain, Gtk::PACK_SHRINK);
-  
+  //Default text for the text-entries (As defined on Defs.h)  
   m_EntryX.set_placeholder_text(std::to_string(DEFAULT_X));
   m_EntryY.set_placeholder_text(std::to_string(DEFAULT_Y));
   m_EntryAngle.set_placeholder_text(std::to_string(DEFAULT_ANGLE));
   m_EntryRate.set_placeholder_text(std::to_string(DEFAULT_RATE));
   m_EntryFile.set_placeholder_text(MAP_TIF);
 
-  //Fill Grid:
+  //Initialize grid
   m_VBox.pack_start(m_Grid);
   m_Grid.set_row_homogeneous(false);
   m_Grid.set_column_homogeneous(false);
@@ -48,6 +47,7 @@ PRM_Gui::PRM_Gui() :
   m_ButtonFast.set_halign(Gtk::ALIGN_CENTER);
   m_ButtonSafe.set_halign(Gtk::ALIGN_CENTER);
   
+  //Fill Grid:
   m_Grid.attach(m_Label_explain, 	0, 0, 6, 2);
   
   m_Grid.attach(m_lable_empty, 	0, 2, 1, 1);
@@ -82,10 +82,11 @@ PRM_Gui::PRM_Gui() :
   
   m_Grid.attach(m_ButtonStart,   		2, 18, 2, 1);
 
-  //m_VBox.set_spacing(7);
+  //Connect to Start button signal and handler
   m_ButtonStart.signal_clicked().connect(sigc::mem_fun(*this,
               &PRM_Gui::on_button_start) );
-              
+  
+  //Connect to Check buttons signals and handlers
   m_ButtonFast.signal_clicked().connect(sigc::mem_fun(*this,
 		      &PRM_Gui::on_button_fast) );
   
@@ -94,7 +95,8 @@ PRM_Gui::PRM_Gui() :
               
   m_ButtonBest.signal_clicked().connect(sigc::mem_fun(*this,
               &PRM_Gui::on_button_best) );
-              
+  
+  //Connect to window X-button signal and handler       
   signal_delete_event().connect(sigc::mem_fun(*this,
 			  &PRM_Gui::on_button_x) );
 
@@ -107,7 +109,7 @@ PRM_Gui::~PRM_Gui()
 
 void PRM_Gui::on_button_start()
 {
-	//m_Entry.get_text()
+	//If the user entered wrong values, use the defaults 
 	std::string x_str = m_EntryX.get_text();
     m_x = atoi(x_str.c_str()) >= 180? atoi(x_str.c_str()) : DEFAULT_X;
     
@@ -128,7 +130,7 @@ void PRM_Gui::on_button_start()
     if(m_file == "")
 		m_file = MAP_TIF;
 		
-	/*
+	/* //Debug prints
 	cout << "x: " << m_x << endl; 
 	cout << "y: " << m_y << endl; 
 	cout << "file: " << m_file << endl;
@@ -143,16 +145,14 @@ void PRM_Gui::on_button_fast()
 {
 	m_fast = m_ButtonFast.get_active() ? true : false;
 	
-	//cout << "fast : " << m_fast << endl;
-	
+	//cout << "fast : " << m_fast << endl;	
 }
 
 void PRM_Gui::on_button_best()
 {
 	m_best = m_ButtonBest.get_active() ? true : false;;
 	
-	//cout << "best : " << m_best << endl;
-	
+	//cout << "best : " << m_best << endl;	
 }
 
 void PRM_Gui::on_button_safe()
@@ -160,7 +160,6 @@ void PRM_Gui::on_button_safe()
 	m_safe = m_ButtonSafe.get_active() ? true : false;;
 	
 	//cout << "safe : " << m_safe << endl;
-	
 }
 
 bool PRM_Gui::on_button_x(GdkEventAny*)

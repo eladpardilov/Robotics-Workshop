@@ -42,9 +42,12 @@ int main(int argc, char **argv)
 	end_coordinates[0] = 180;
 	end_coordinates[1] = 180;
 	
+	//Gui first app for the first window - 
+	//the input window in which the user enter the values 
+	//for the path calculator  
 	auto app = Gtk::Application::create(argc, argv, "app_gui.part_1", Gio::APPLICATION_NON_UNIQUE);
 	PRM_Gui gui_inputWindow;
-	//Shows the window and returns when it is closed.
+	//Shows the window and returns when it closed.
 	app->run(gui_inputWindow);
 	
 	//If user close the window by X button, return 
@@ -103,6 +106,8 @@ int main(int argc, char **argv)
 		post.PrepareOnePath(fast_index, "fast");
 	}	
 	
+	//Gui second application for the dexond window, 
+	//that displays the result routes 
 	auto app2 = Gtk::Application::create(argc, argv, "app_gui.part_2", Gio::APPLICATION_NON_UNIQUE);
 	PRM_Gui_img gui_imgWindow(safe, best, fast); 
 	app2->run(gui_imgWindow);

@@ -59,7 +59,8 @@ PRM_Gui_img::PRM_Gui_img(bool safe, bool best, bool fast):
 		i++;
 	}
 	
-	//By default show the best route (if, from any reason, the user didn't choose routes to display)
+	//By default show the best route 
+	//(if, from any reason, the user didn't choose routes to display)
 	if(!m_bSafe && !m_bFast && !m_bBest)
 	{
 		m_best->set(BEST_IMG_FILE);
