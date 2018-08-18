@@ -30,6 +30,12 @@ PathCalculator::PathCalculator(cv::Mat mat, int* coordinates, int max_turn_rate,
 	this->output_index = 0;	
 }
 
+PathCalculator::~PathCalculator()
+{
+	funnel_mat.release();
+	global_mat.release();
+}
+
 PathCalculator::myMotionValidator::myMotionValidator(const ob::SpaceInformationPtr &si) : ob::MotionValidator(si) {
 
 }
@@ -459,8 +465,3 @@ void PathCalculator::PlanRoute()
 }
 
 
-void PathCalculator::finish()
-{
-	funnel_mat.release();
-	// TODO: add global_mat release here?
-}

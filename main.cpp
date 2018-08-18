@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
 	path.PlanRoute();
 	
-	path.finish();
+	//path.finish();
 
 	PostProcessor post(end_coordinates);
 	
@@ -103,9 +103,7 @@ int main(int argc, char **argv)
 	int fast_index = post.FindFastestPath();
 	printf("Fastest path index: %d\n",fast_index);
 	post.PrepareOnePath(fast_index, "fast");
-	
-	post.Show();
-	
+		
 	/* TODO: check which releases are to be made */	
     // for(int i = 0; i < MAP_SIZE; ++i) {
     //	 delete [] map[i];

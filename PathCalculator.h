@@ -115,10 +115,10 @@ private:
 public:
 	/* Constructor */
 	PathCalculator (cv::Mat mat, int* coordinates, int max_turn_rate, double max_up_down_rate, int radius, int num_states);
+	/* destructor   */
+	~PathCalculator();
 	/* Plan the rescue according to the given data */
 	void PlanRoute();
-	/* Free resources */
-	void finish();
 	/* Dimensions of the map */
 	int rows;
 	int cols;
