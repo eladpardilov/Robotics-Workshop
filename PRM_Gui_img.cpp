@@ -30,8 +30,8 @@ PRM_Gui_img::PRM_Gui_img(bool safe, bool best, bool fast):
 	if(m_bBest)
 	{
 		m_best->set(BEST_IMG_FILE);
-		m_Grid.attach(m_Label_best, i, 0, 1, 1);
-		m_Label_best.set_halign(Gtk::ALIGN_CENTER);
+		//m_Grid.attach(m_Label_best, i, 0, 1, 1);
+		//m_Label_best.set_halign(Gtk::ALIGN_CENTER);
 		m_Grid.attach(*m_best, 	i, 1, 1, 1);
 		m_best->set_halign(Gtk::ALIGN_CENTER);
 		m_best->set_margin_right(20);

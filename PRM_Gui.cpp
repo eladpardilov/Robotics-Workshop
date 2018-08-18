@@ -72,11 +72,6 @@ PRM_Gui::PRM_Gui() :
   m_Grid.attach(m_EntryFile,   			0, 13, 6, 1);
   
   m_Grid.attach(m_lable_empty4, 	0, 14, 1, 1);
-
-  m_Grid.attach(m_Label_route, 			0, 15, 6, 1);
-  m_Grid.attach(m_ButtonFast,   		0, 16, 2, 1);
-  m_Grid.attach(m_ButtonSafe,   		2, 16, 2, 1);
-  m_Grid.attach(m_ButtonBest,   		4, 16, 2, 1);
   
   m_Grid.attach(m_lable_empty5, 	0, 17, 1, 1);
   
@@ -85,16 +80,6 @@ PRM_Gui::PRM_Gui() :
   //Connect to Start button signal and handler
   m_ButtonStart.signal_clicked().connect(sigc::mem_fun(*this,
               &PRM_Gui::on_button_start) );
-  
-  //Connect to Check buttons signals and handlers
-  m_ButtonFast.signal_clicked().connect(sigc::mem_fun(*this,
-		      &PRM_Gui::on_button_fast) );
-  
-  m_ButtonSafe.signal_clicked().connect(sigc::mem_fun(*this,
-              &PRM_Gui::on_button_safe) );
-              
-  m_ButtonBest.signal_clicked().connect(sigc::mem_fun(*this,
-              &PRM_Gui::on_button_best) );
   
   //Connect to window X-button signal and handler       
   signal_delete_event().connect(sigc::mem_fun(*this,
@@ -150,14 +135,14 @@ void PRM_Gui::on_button_fast()
 
 void PRM_Gui::on_button_best()
 {
-	m_best = m_ButtonBest.get_active() ? true : false;;
+	m_best = m_ButtonBest.get_active() ? true : false;
 	
 	//cout << "best : " << m_best << endl;	
 }
 
 void PRM_Gui::on_button_safe()
 {
-	m_safe = m_ButtonSafe.get_active() ? true : false;;
+	m_safe = m_ButtonSafe.get_active() ? true : false;
 	
 	//cout << "safe : " << m_safe << endl;
 }

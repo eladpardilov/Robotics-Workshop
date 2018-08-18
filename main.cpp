@@ -59,9 +59,9 @@ int main(int argc, char **argv)
 	global_end_coordinates[1]  = gui_inputWindow.m_y;
 	max_turn_rate 			   = gui_inputWindow.m_angle;
 	max_up_down_rate		   = gui_inputWindow.m_rate;
-	best					   = gui_inputWindow.m_best;		
-	safe					   = gui_inputWindow.m_safe;
-	fast				       = gui_inputWindow.m_fast;
+	best					   = true;		
+	safe					   = false;
+	fast				       = false;
 	
 	printf("Taking (%d,%d) as destination coordinates.\n", global_end_coordinates[0], global_end_coordinates[1]);
 	printf("-> (%d,%d) in the displayed tile\n", end_coordinates[0], end_coordinates[1]);
