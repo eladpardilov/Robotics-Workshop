@@ -13,7 +13,7 @@
 #include <opencv2/imgproc.hpp>
 
 
-#include  "PRM_Gui.h"
+#include  "Prm_Gui.h"
 #include "PRM_Gui_img.h"
 
 using namespace std; 
@@ -122,18 +122,22 @@ int main(int argc, char* argv[])
 {
 	//gtk_init(&argc, &argv);
    
-  auto app = Gtk::Application::create(argc, argv, "app.1", Gio::APPLICATION_NON_UNIQUE);
+  auto app = Gtk::Application::create(argc, argv, "app_1.h_1", Gio::APPLICATION_NON_UNIQUE);
 
   PRM_Gui gui;
   
   //Shows the window and returns when it is closed.
   app->run(gui);
   
-
+  if(gui.m_closedByX)
+	{
+		printf("close!!!!!\n");
+		return 0;
+	}
   
   cout << "Main: first finish, gui angle = " << gui.m_angle << endl;
   
-  auto app2 = Gtk::Application::create(argc, argv, "app.2", Gio::APPLICATION_NON_UNIQUE);
+  auto app2 = Gtk::Application::create(argc, argv, "app_2.h_2", Gio::APPLICATION_NON_UNIQUE);
   
   printf("here\n");
   

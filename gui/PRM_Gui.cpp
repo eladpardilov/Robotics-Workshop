@@ -1,10 +1,10 @@
 #include <gtkmm-3.0/gtkmm.h>
-#include "PRM_Gui.h"
+#include "Prm_Gui.h"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <gtk/gtk.h>
-#include "PRM_Gui_img.h"
+//#include "PRM_Gui_img.h"
 
 
 using namespace std; 
@@ -17,6 +17,7 @@ Glib::ustring file;
 bool fast = false;
 bool safe = false;
 bool best = false;
+
 
 
 PRM_Gui::PRM_Gui() : 
@@ -32,8 +33,12 @@ PRM_Gui::PRM_Gui() :
   m_Label_file("Please insert a .tif fileName of the map"),
   m_lable_empty(""), m_lable_empty1(""), m_lable_empty2(""), m_lable_empty3(""), m_lable_empty4(""), m_lable_empty5("")
 {
+  m_closedByX = false;
+  signal_delete_event().connect(sigc::mem_fun(*this,
+              &PRM_Gui::test2) );
+	
   set_title("Save the man!");
-  set_border_width(12);
+  set_border_width(10);
 
   add(m_VBox);
 
@@ -49,41 +54,47 @@ PRM_Gui::PRM_Gui() :
   m_VBox.pack_start(m_Grid);
   m_Grid.set_row_homogeneous(false);
   m_Grid.set_column_homogeneous(false);
-  m_Grid.set_row_spacing(4);
+  m_Grid.set_row_spacing(0);
   
-  m_Grid.attach(m_Label_explain, 	0, 0, 2, 2);
+  //set_padding(60,60,60,60);
+  
+  m_ButtonBest.set_halign(Gtk::ALIGN_CENTER);
+  m_ButtonFast.set_halign(Gtk::ALIGN_CENTER);
+  m_ButtonSafe.set_halign(Gtk::ALIGN_CENTER);
+  
+  m_Grid.attach(m_Label_explain, 	0, 0, 6, 2);
   
   m_Grid.attach(m_lable_empty, 	0, 2, 1, 1);
   
-  m_Grid.attach(m_Label_xy, 0, 3, 2, 1);
-  m_Grid.attach(m_EntryX,   0, 4, 1, 1);
-  m_Grid.attach(m_EntryY,   1, 4, 1, 1);
+  m_Grid.attach(m_Label_xy, 0, 3, 6, 1);
+  m_Grid.attach(m_EntryX,   0, 4, 3, 1);
+  m_Grid.attach(m_EntryY,   3, 4, 3, 1);
  
   m_Grid.attach(m_lable_empty1, 	0, 5, 1, 1);
 
-  m_Grid.attach(m_Label_rotate_angle, 	0, 6, 2, 1);
-  m_Grid.attach(m_EntryAngle,   		0, 7, 2, 1);
+  m_Grid.attach(m_Label_rotate_angle, 	0, 6, 6, 1);
+  m_Grid.attach(m_EntryAngle,   		0, 7, 6, 1);
   
   m_Grid.attach(m_lable_empty2, 	0, 8, 1, 1);
   
-  m_Grid.attach(m_Label_upDown_rate, 	0, 9, 2, 1);
-  m_Grid.attach(m_EntryRate,   			0, 10, 2, 1);
+  m_Grid.attach(m_Label_upDown_rate, 	0, 9, 6, 1);
+  m_Grid.attach(m_EntryRate,   			0, 10, 6, 1);
   
   m_Grid.attach(m_lable_empty3, 	0, 11, 1, 1);
 
-  m_Grid.attach(m_Label_file, 			0, 12, 2, 1);
-  m_Grid.attach(m_EntryFile,   			0, 13, 2, 1);
+  m_Grid.attach(m_Label_file, 			0, 12, 6, 1);
+  m_Grid.attach(m_EntryFile,   			0, 13, 6, 1);
   
   m_Grid.attach(m_lable_empty4, 	0, 14, 1, 1);
 
-  m_Grid.attach(m_Label_route, 			0, 15, 2, 1);
-  m_Grid.attach(m_ButtonFast,   		0, 16, 1, 1);
-  m_Grid.attach(m_ButtonSafe,   		1, 16, 1, 1);
-  m_Grid.attach(m_ButtonBest,   		2, 16, 1, 1);
+  m_Grid.attach(m_Label_route, 			0, 15, 6, 1);
+  m_Grid.attach(m_ButtonFast,   		0, 16, 2, 1);
+  m_Grid.attach(m_ButtonSafe,   		2, 16, 2, 1);
+  m_Grid.attach(m_ButtonBest,   		4, 16, 2, 1);
   
   m_Grid.attach(m_lable_empty5, 	0, 17, 1, 1);
   
-  m_Grid.attach(m_ButtonStart,   		1, 18, 1, 1);
+  m_Grid.attach(m_ButtonStart,   		2, 18, 2, 1);
 
 
   //Add ButtonBox to bottom:
@@ -182,5 +193,12 @@ void PRM_Gui::on_button_safe()
 	
 	cout << "safe : " << safe << endl;
 	
+}
+
+bool PRM_Gui::test2(GdkEventAny*)
+{
+	m_closedByX = true;
+	hide();
+	return true;
 }
 

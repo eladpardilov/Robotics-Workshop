@@ -20,6 +20,10 @@ public:
   virtual ~PRM_Gui();
   
   int m_angle;
+  
+  bool m_closedByX;
+  
+  bool test2(GdkEventAny*);
 
 protected:
   //Signal handlers:

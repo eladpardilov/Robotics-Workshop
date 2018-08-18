@@ -47,7 +47,11 @@ int main(int argc, char **argv)
 	//Shows the window and returns when it is closed.
 	app->run(gui_inputWindow);
 	
+	//If user close the window by X button, return 
+	if(gui_inputWindow.m_closedByX)
+		return 0;
 	
+	//Else, continue to the path calculator 
 	global_end_coordinates[0]  = gui_inputWindow.m_x;
 	global_end_coordinates[1]  = gui_inputWindow.m_y;
 	max_turn_rate 			   = gui_inputWindow.m_angle;

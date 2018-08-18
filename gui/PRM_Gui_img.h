@@ -16,7 +16,7 @@
 
 
 static bool b_safe = true; 
-static bool b_best = false; 
+static bool b_best = true; 
 static bool b_fast = true; 
 
 class PRM_Gui_img : public Gtk::Window
