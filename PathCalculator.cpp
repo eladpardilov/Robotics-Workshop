@@ -222,9 +222,13 @@ bool PathCalculator::myMotionValidator::IsLineValid(int** line, int len) const
 	if (line == NULL)
 		return true;
 
+	int x,y;
+
 	for (int i=0; i < len; i++)
 	{
-		if (global_mat.at<float>(int(round(line[i][1])),int(round(line[i][0]))) > line[i][2])
+		y = int(round(line[i][1])) > MAP_SIZE ? MAP_SIZE : int(round(line[i][1]));
+		x = int(round(line[i][0])) > MAP_SIZE ? MAP_SIZE : int(round(line[i][0]));
+		if (global_mat.at<float>(y, x) > line[i][2])
 			return false;
 	}
 	return true;
