@@ -113,7 +113,7 @@ int PostProcessor::FindPathByPercentage(double euc_percent, double angle_percent
 
 void PostProcessor::PrepareOnePath(int path_index, const char* path_type)
 {
-	printf("Prerpare one path func\n");
+	printf("Prepare one path func\n");
 	float x1, y1, z1, x2,y2,z2, temp;
 	int numOfPoints;
 	float colorFactor;

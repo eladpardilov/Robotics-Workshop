@@ -16,8 +16,8 @@ PRM_Gui::PRM_Gui() :
   m_ButtonFast("Fastest route"), m_ButtonBest("Best route"), m_ButtonSafe("Safest route"),
   m_EntryX(), m_EntryY(), m_EntryAngle(), m_EntryRate(), m_EntryFile(),
   m_Label_xy("Provide x,y coordinates (pixels, 180-3420)"), 
-  m_Label_rotate_angle("Enter maximum turn rate (degree/sec, 5-90)"), 
-  m_Label_upDown_rate("Enter maximum rate of climb/decent (meter/sec, 5-100)"),
+  m_Label_rotate_angle("Enter maximum turn rate (degree/sec, 10-90)"), 
+  m_Label_upDown_rate("Enter maximum rate of climb/decent (meter/sec, 10-100)"),
   m_Label_route("Choose the desirable routes"),
   m_Label_file("Insert a .tif file name of the map"),
   m_lable_empty(""), m_lable_empty1(""), m_lable_empty2(""), m_lable_empty3(""), m_lable_empty4(""), m_lable_empty5("")
@@ -118,12 +118,12 @@ void PRM_Gui::on_button_start()
     
     std::string angle_str = m_EntryAngle.get_text();
     m_angle = atoi(angle_str.c_str());
-    if(m_angle<5 || m_angle>90)
+    if(m_angle<10 || m_angle>90)
 		m_angle = DEFAULT_ANGLE;
 	
 	std::string rate_str = m_EntryRate.get_text();	
 	m_rate = atof(rate_str.c_str());
-	if(m_rate<5 || m_rate>100)
+	if(m_rate<10 || m_rate>100)
 		m_rate = DEFAULT_RATE;
 	 
     m_file = m_EntryFile.get_text();
