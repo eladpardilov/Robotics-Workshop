@@ -52,24 +52,44 @@ PRM_Gui::PRM_Gui() :
   
   m_Grid.attach(m_lable_empty, 	0, 2, 1, 1);
   
-  m_Grid.attach(m_Label_xy, 0, 3, 6, 1);
-  m_Grid.attach(m_EntryX,   0, 4, 3, 1);
-  m_Grid.attach(m_EntryY,   3, 4, 3, 1);
+  m_Grid.attach(m_Label_file,       0, 3, 6, 1);
+  m_Grid.attach(m_EntryFile,        0, 4, 6, 1);
+
+  m_Grid.attach(m_lable_empty1,   0, 5, 1, 1);
+
+  m_Grid.attach(m_Label_xy, 0, 6, 6, 1);
+  m_Grid.attach(m_EntryX,   0, 7, 3, 1);
+  m_Grid.attach(m_EntryY,   3, 7, 3, 1);
  
-  m_Grid.attach(m_lable_empty1, 	0, 5, 1, 1);
+  m_Grid.attach(m_lable_empty2,   0, 8, 1, 1);
 
-  m_Grid.attach(m_Label_rotate_angle, 	0, 6, 6, 1);
-  m_Grid.attach(m_EntryAngle,   		0, 7, 6, 1);
+  m_Grid.attach(m_Label_rotate_angle,   0, 9, 6, 1);
+  m_Grid.attach(m_EntryAngle,       0, 10, 6, 1);
   
-  m_Grid.attach(m_lable_empty2, 	0, 8, 1, 1);
+  m_Grid.attach(m_lable_empty3,   0, 11, 1, 1);
   
-  m_Grid.attach(m_Label_upDown_rate, 	0, 9, 6, 1);
-  m_Grid.attach(m_EntryRate,   			0, 10, 6, 1);
+  m_Grid.attach(m_Label_upDown_rate,  0, 12, 6, 1);
+  m_Grid.attach(m_EntryRate,        0, 13, 6, 1);
   
-  m_Grid.attach(m_lable_empty3, 	0, 11, 1, 1);
 
-  m_Grid.attach(m_Label_file, 			0, 12, 6, 1);
-  m_Grid.attach(m_EntryFile,   			0, 13, 6, 1);
+  //m_Grid.attach(m_Label_xy, 0, 3, 6, 1);
+  //m_Grid.attach(m_EntryX,   0, 4, 3, 1);
+  //m_Grid.attach(m_EntryY,   3, 4, 3, 1);
+// 
+  //m_Grid.attach(m_lable_empty1, 	0, 5, 1, 1);
+//
+  //m_Grid.attach(m_Label_rotate_angle, 	0, 6, 6, 1);
+  //m_Grid.attach(m_EntryAngle,   		0, 7, 6, 1);
+//  
+  //m_Grid.attach(m_lable_empty2, 	0, 8, 1, 1);
+//  
+  //m_Grid.attach(m_Label_upDown_rate, 	0, 9, 6, 1);
+  //m_Grid.attach(m_EntryRate,   			0, 10, 6, 1);
+//  
+  //m_Grid.attach(m_lable_empty3, 	0, 11, 1, 1);
+//
+  //m_Grid.attach(m_Label_file, 			0, 12, 6, 1);
+  //m_Grid.attach(m_EntryFile,   			0, 13, 6, 1);
   
   m_Grid.attach(m_lable_empty4, 	0, 14, 1, 1);
 
